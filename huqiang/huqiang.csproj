@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BD838CFE-1E59-47A2-B16A-4DD681CA7074}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>huqiang</RootNamespace>
+    <AssemblyName>huqiang</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\CthulhuClient\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;UNITY_EDITOR</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\huqiang.XML</DocumentationFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;UNITY_EDITOR</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEditor">
+      <HintPath>E:\unity2018\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>E:\unity2018\Editor\Data\UnityExtensions\Unity\GUISystem\Editor\UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>E:\unity2018\Editor\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>E:\unity2018\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\Communication\EnvelopeBuffer.cs" />
+    <Compile Include="Core\Communication\EnvelopeEx.cs" />
+    <Compile Include="Core\Communication\FreePort.cs" />
+    <Compile Include="Core\Communication\TcpScoket.cs" />
+    <Compile Include="Core\Communication\UdpServer.cs" />
+    <Compile Include="Core\Communication\UdpSocket.cs" />
+    <Compile Include="Core\Data\AuxiliaryLine.cs" />
+    <Compile Include="Core\Data\Box.cs" />
+    <Compile Include="Core\Data\DataBuffer.cs" />
+    <Compile Include="Core\Data\DownloadManager.cs" />
+    <Compile Include="Core\Data\FakeStringArray.cs" />
+    <Compile Include="Core\Data\FakeStruct.cs" />
+    <Compile Include="Core\Data\FakeStructArray.cs" />
+    <Compile Include="Core\Data\LocalFileManager.cs" />
+    <Compile Include="Core\Data\MeshData.cs" />
+    <Compile Include="Core\Data\RecordManager.cs" />
+    <Compile Include="Core\Event\CheckEvent.cs" />
+    <Compile Include="Core\Event\EmojiInput.cs" />
+    <Compile Include="Core\Event\EventCallBack.cs" />
+    <Compile Include="Core\Event\GestureEvent.cs" />
+    <Compile Include="Core\Event\IME.cs" />
+    <Compile Include="Core\Event\InputCaret.cs" />
+    <Compile Include="Core\Event\SliderEvent.cs" />
+    <Compile Include="Core\Event\TextInput.cs" />
+    <Compile Include="Core\Event\TextInputA.cs" />
+    <Compile Include="Core\Event\TextInputEvent.cs" />
+    <Compile Include="Core\Event\UserAction.cs" />
+    <Compile Include="Core\Gif\BitHelper.cs" />
+    <Compile Include="Core\Gif\GifColor.cs" />
+    <Compile Include="Core\Gif\GifData.cs" />
+    <Compile Include="Core\Gif\GifDecoder.cs" />
+    <Compile Include="Core\Gif\GifGraphicsControlExtension.cs" />
+    <Compile Include="Core\Gif\GifImageData.cs" />
+    <Compile Include="Core\Gif\GifImageDescriptor.cs" />
+    <Compile Include="Core\HQTween\Aanimation.cs" />
+    <Compile Include="Core\HQTween\AnimatBase.cs" />
+    <Compile Include="Core\HQTween\AnimationExtand.cs" />
+    <Compile Include="Core\HQTween\GifAnimat.cs" />
+    <Compile Include="Core\HQTween\ImageAnimat.cs" />
+    <Compile Include="Core\HQTween\MoveAnimat.cs" />
+    <Compile Include="Core\HQTween\PropertyAnimat.cs" />
+    <Compile Include="Core\HQTween\RotateAnimat.cs" />
+    <Compile Include="Core\HQTween\ScaleAnimat.cs" />
+    <Compile Include="Core\HQTween\ShaderAnimat.cs" />
+    <Compile Include="Core\LeanTween\LeanAudio.cs" />
+    <Compile Include="Core\LeanTween\LeanTween.cs" />
+    <Compile Include="Core\LeanTween\LTDescr.cs" />
+    <Compile Include="Core\LeanTween\LTDescrOptional.cs" />
+    <Compile Include="Core\LeanTween\LTSeq.cs" />
+    <Compile Include="Core\Math\MathH.cs" />
+    <Compile Include="Core\Math\Physics.cs" />
+    <Compile Include="Core\Math\Physics2D.cs" />
+    <Compile Include="Core\Other\App.cs" />
+    <Compile Include="Core\Other\CommandTransfer.cs" />
+    <Compile Include="Core\Other\Extand.cs" />
+    <Compile Include="Core\Other\Model.cs" />
+    <Compile Include="Core\Other\Scale.cs" />
+    <Compile Include="Core\Other\Task.cs" />
+    <Compile Include="Core\Other\ThreadTimer.cs" />
+    <Compile Include="Core\Other\Tool.cs" />
+    <Compile Include="Core\UIModel\DragContent.cs" />
+    <Compile Include="Core\UIModel\DropdownEx.cs" />
+    <Compile Include="Core\UIModel\ElementAsset.cs" />
+    <Compile Include="Core\UIModel\GridArea.cs" />
+    <Compile Include="Core\UIModel\GridScroll.cs" />
+    <Compile Include="Core\UIModel\ImageElement.cs" />
+    <Compile Include="Core\UIModel\ModelElement.cs" />
+    <Compile Include="Core\UIModel\ModelManager.cs" />
+    <Compile Include="Core\UIModel\RawImageElement.cs" />
+    <Compile Include="Core\UIModel\ScrollContent.cs" />
+    <Compile Include="Core\UIModel\ScrollExC.cs" />
+    <Compile Include="Core\UIModel\ScrollExY.cs" />
+    <Compile Include="Core\UIModel\ScrollX.cs" />
+    <Compile Include="Core\UIModel\ScrollY.cs" />
+    <Compile Include="Core\UIModel\SizeScaling.cs" />
+    <Compile Include="Core\UIModel\TextElement.cs" />
+    <Compile Include="Core\UIModel\UIContainer.cs" />
+    <Compile Include="Core\UIModel\UIPage.cs" />
+    <Compile Include="Core\UIScript\CustomRawImage.cs" />
+    <Compile Include="Core\UIScript\ElementCreate.cs" />
+    <Compile Include="Core\UIScript\Emoji.cs" />
+    <Compile Include="Core\UIScript\EmojiMap.cs" />
+    <Compile Include="Core\UIScript\EmojiString.cs" />
+    <Compile Include="Core\UIScript\EmojiText.cs" />
+    <Compile Include="Core\UIScript\RawImageEx.cs" />
+    <Compile Include="Core\UIScript\ShareImage.cs" />
+    <Compile Include="Core\UIScript\SizeScaleEx.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ARIALUNI.info" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="link.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
