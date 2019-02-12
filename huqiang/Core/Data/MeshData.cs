@@ -12,9 +12,12 @@ namespace huqiang.Data
         public Vector3 pos;
         public Vector3 scale;
         public Quaternion quat;
+        public Color color;
+        public unsafe static Int32 Size { get { return sizeof(Coordinate); } }
     }
     public class MeshData
     {
+        public static Color DefColor = new Color(0.5f, 0.5f, 0.5f, 1);
         enum DataType
         {
             Coordinate = -1,
@@ -24,7 +27,7 @@ namespace huqiang.Data
             UV = 3,
             Triangles = 4,
             Child = 5,
-            Type = 6
+            Type = 6,
         }
         public static byte[] Zreo = new byte[4];
         public MeshData[] child;
@@ -38,10 +41,8 @@ namespace huqiang.Data
         public MeshData()
         {
             coordinate.scale = Vector3.one;
-            coordinate.quat.x = 0;
-            coordinate.quat.y = 0;
-            coordinate.quat.z = 0;
             coordinate.quat.w = 1;
+            coordinate.color = DefColor;
         }
 
         public unsafe byte* LoadFromBytes(byte* bp)
@@ -59,15 +60,13 @@ namespace huqiang.Data
                         bp += 4;
                         break;
                     case DataType.Coordinate:
-                        unsafe
-                        {
-                            fixed (Coordinate* coor = &coordinate)
-                            { ReadCoordinate(bp, coor); }
-                        }
-                        bp += 40;
+                        int c = *(Int32*)bp;
+                        bp += 4;
+                        ReadCoordinate(bp, c);
+                        bp += c;
                         break;
                     case DataType.Name:
-                        int c = *(Int32*)bp;
+                        c = *(Int32*)bp;
                         bp += 4;
                         name = Encoding.UTF8.GetString(Tool.GetByteArray(bp, c));
                         bp += c;
@@ -139,16 +138,23 @@ namespace huqiang.Data
             }
             return null;
         }
-        unsafe static void ReadCoordinate(byte* bp, Coordinate* coordinate)
+        unsafe void ReadCoordinate(byte* bp, int c)
         {
             float* tp = (float*)bp;
-            float* fp = (float*)coordinate;
-            for (int i = 0; i < 10; i++)
+            fixed (Coordinate* cp = &coordinate)
             {
-                *fp = *tp;
-                fp++;
-                tp++;
-            }
+                int len = Coordinate.Size;
+                if (len < c)
+                    len = c;
+                len /= 4;
+                float* fp = (float*)cp;
+                for (int i = 0; i < len; i++)
+                {
+                    *fp = *tp;
+                    fp++;
+                    tp++;
+                }
+            };
         }
         unsafe static int[] ReadTri(byte* bp)
         {
@@ -249,14 +255,16 @@ namespace huqiang.Data
         {
             var tmp = ((Int32)DataType.Coordinate).ToBytes();
             stream.Write(tmp, 0, 4);
-            byte[] buf = new byte[40];
+            int size = Coordinate.Size;
+            stream.Write(size.ToBytes(), 0, 4);
+            byte[] buf = new byte[size];
             byte* fp = (byte*)coordinate;
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < size; i++)
             {
                 buf[i] = *fp;
                 fp++;
             }
-            stream.Write(buf, 0, 40);
+            stream.Write(buf, 0, size);
         }
         static void WriteName(Stream stream, string name)
         {
@@ -311,9 +319,11 @@ namespace huqiang.Data
             }
         }
 
+        public GameObject AssociatedObject;
         public GameObject CreateGameObject()
         {
             GameObject game = new GameObject(name);
+            AssociatedObject = game;
             if (vertex != null)
             {
                 game.AddComponent<MeshRenderer>();
@@ -362,10 +372,10 @@ namespace huqiang.Data
                     }
                 }
         }
-
         public static MeshData LoadFromGameObject(Transform game)
         {
             var mesh = new MeshData();
+            mesh.AssociatedObject = game.gameObject;
             mesh.name = game.name;
             var mf = game.GetComponent<MeshFilter>();
             if (mf != null)
@@ -398,6 +408,21 @@ namespace huqiang.Data
                     mesh.child[i] = LoadFromGameObject(t.GetChild(i));
             }
             return mesh;
+        }
+        public MeshData FindAssociatedMesh(GameObject game)
+        {
+            if (game == AssociatedObject)
+                return this;
+            if (child != null)
+            {
+                for (int i = 0; i < child.Length; i++)
+                {
+                    var mesh = child[i].FindAssociatedMesh(game);
+                    if (mesh != null)
+                        return mesh;
+                }
+            }
+            return null;
         }
     }
 }

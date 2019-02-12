@@ -86,5 +86,62 @@ namespace huqiang
                 }
             }
         }
+        public static Vector3 GetCenter(Mesh mesh)
+        {
+            var vert = mesh.vertices;
+            if (vert == null || vert.Length <= 0)
+                return Vector3.zero;
+            float xi = vert[0].x;
+            float xx = vert[0].x;
+            float yi = vert[0].y;
+            float yx = vert[0].y;
+            float zi = vert[0].z;
+            float zx = vert[0].z;
+            for (int i = 1; i < vert.Length; i++)
+            {
+                if (vert[i].x < xi)
+                    xi = vert[i].x;
+                else if (vert[i].x > xx)
+                    xx = vert[i].x;
+                if (vert[i].y < yi)
+                    yi = vert[i].y;
+                else if (vert[i].y > yx)
+                    yx = vert[i].y;
+                if (vert[i].z < zi)
+                    zi = vert[i].z;
+                else if (vert[i].z > zx)
+                    zx = vert[i].z;
+            }
+            return new Vector3((xi + xx) * 0.5f, (yi + yx) * 0.5f, (zi + zx) * 0.5f);
+        }
+        static int[] Cubetri = new int[] {
+                0,1,2,2,3,0,
+                1,5,2,2,5,6,
+                5,4,6,6,4,7,
+                0,3,4,3,7,4,
+                1,0,4,4,5,1,
+                3,2,7,7,2,6};
+        public static ConeData CreateCube(Vector3 size)
+        {
+            float rx = size.x * 0.5f;
+            float ry = size.y * 0.5f;
+            float rz = size.z * 0.5f;
+
+            var vert = new Vector3[8];
+            vert[0] = new Vector3(-rx, -ry, -rz);
+            vert[1] = new Vector3(-rx, ry, -rz);
+            vert[2] = new Vector3(rx, ry, -rz);
+            vert[3] = new Vector3(rx, -ry, -rz);
+
+            vert[4] = new Vector3(-rx, -ry, rz);
+            vert[5] = new Vector3(-rx, ry, rz);
+            vert[6] = new Vector3(rx, ry, rz);
+            vert[7] = new Vector3(rx, -ry, rz);
+
+            ConeData cd = new ConeData();
+            cd.Vertex = vert;
+            cd.Tri = Cubetri;
+            return cd;
+        }
     }
 }
