@@ -293,16 +293,31 @@ namespace huqiang
                 for (int i = 0; i < 10; i++)
                     inputs[i] = new UserAction(i);
             }
-            for (int i = 0; i < 10; i++)
+            var touches = Input.touches;
+            if(touches!=null)
             {
-                try
+                for(int i=0;i<touches.Length;i++)
                 {
-                    Touch touch = Input.GetTouch(i);
-                    inputs[i].LoadFinger(ref touch);
-                    inputs[i].IsActive = true;
-                    inputs[i].Dispatch();
+                    int id = touches[i].fingerId;
+                    inputs[id].LoadFinger(ref touches[i]);
+                    inputs[id].IsActive = true;
+                    inputs[id].Dispatch();
                 }
-                catch (Exception ex)
+                for(int i=0;i<10;i++)
+                {
+                    for(int j=0;j<touches.Length;j++)
+                    {
+                        if (i == touches[j].fingerId)
+                            goto label;
+                    }
+                    inputs[i].isPressed = false;
+                    inputs[i].IsActive = false;
+                    label:;
+                }
+            }
+            else
+            {
+                for(int i=0;i<10;i++)
                 {
                     inputs[i].isPressed = false;
                     inputs[i].IsActive = false;
@@ -329,20 +344,36 @@ namespace huqiang
                     inputs[i] = new UserAction(i);
             }
             bool finger = false;
-            for (int i = 1; i < 10; i++)
+            var touches = Input.touches;
+            if (touches != null)
             {
-                try
-                {
-                    Touch touch = Input.GetTouch(i);
-                    inputs[i].LoadFinger(ref touch);
-                    inputs[i].IsActive = true;
-                    inputs[i].Dispatch();
+                if (touches.Length > 0)
                     finger = true;
-                }
-                catch (Exception ex)
+                for (int i = 0; i < touches.Length; i++)
                 {
-                    inputs[i].IsActive = false;
+                    int id = touches[i].fingerId;
+                    inputs[id].LoadFinger(ref touches[i]);
+                    inputs[id].IsActive = true;
+                    inputs[id].Dispatch();
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    for (int j = 0; j < touches.Length; j++)
+                    {
+                        if (i == touches[j].fingerId)
+                            goto label;
+                    }
                     inputs[i].isPressed = false;
+                    inputs[i].IsActive = false;
+                    label:;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    inputs[i].isPressed = false;
+                    inputs[i].IsActive = false;
                 }
             }
             if (!finger)

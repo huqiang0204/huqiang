@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using huqiang.UIModel;
 using UnityEngine;
 
-namespace UGUI
-{
+
     public class SizeScaleEx : SizeScaling
     {
 
@@ -154,7 +153,6 @@ namespace UGUI
                 }
             }
         }
-
     }
-}
+
 

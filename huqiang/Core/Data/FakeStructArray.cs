@@ -7,7 +7,7 @@ namespace huqiang.Data
     public class FakeStructArray : ToBytes
     {
         IntPtr ptr;
-        unsafe byte* ip;
+        public unsafe byte* ip;
         internal Int32 m_size;
         int m_len;
         int all_len;
@@ -59,9 +59,9 @@ namespace huqiang.Data
         }
         public int StructLegth { get { return m_size; } }
         public Int32 Length { get { return m_len; } }
-        public IntPtr this[int index]
+        public unsafe byte* this[int index]
         {
-            get { return (IntPtr)((int)ptr + index * m_size); }
+            get { return ip + index * m_size * 4; }
         }
         public Int32 this[int index, int os]
         {
@@ -205,6 +205,21 @@ namespace huqiang.Data
                 sp++;
                 tp++;
             }
+        }
+        public unsafe void SetDataFromAddress(int* addr, object dat)
+        {
+            int a = (int)addr - (int)ip;
+            if (a < 0 | a >= all_len)//超过界限
+                return;
+            buffer.RemoveData(*addr);
+            *addr = buffer.AddData(dat);
+        }
+        public unsafe T GetDataFromAddress<T>(int* addr) where T : class
+        {
+            int a = (int)addr - (int)ip;
+            if (a < 0 | a >= all_len)//超过界限
+                return null;
+            return buffer.GetData(*addr) as T;
         }
     }
 }

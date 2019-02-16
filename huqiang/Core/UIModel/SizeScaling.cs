@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace UGUI
-{
+
     public class SizeScaling : MonoBehaviour
     {
         public ScaleType scaleType;
@@ -15,5 +14,5 @@ namespace UGUI
         public Margin margin;
         public Vector2 DesignSize;
     }
-}
+
 

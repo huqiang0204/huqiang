@@ -60,42 +60,48 @@ namespace huqiang
         {
             while (true)
             {
-                if (close)
+                try
                 {
-                    if (client != null)
+                    if (close)
                     {
-                        if (client.Connected)
-                            client.Shutdown(SocketShutdown.Both);
-                        client.Close();
-                    }
-                    break;
-                }
-                if (client != null)
-                {
-                    if (client.Connected)
-                    {
-                        Receive();
-                        if(redic)
+                        if (client != null)
                         {
                             if (client.Connected)
                                 client.Shutdown(SocketShutdown.Both);
                             client.Close();
+                        }
+                        break;
+                    }
+                    if (client != null)
+                    {
+                        if (client.Connected)
+                        {
+                            Receive();
+                            if (redic)
+                            {
+                                if (client.Connected)
+                                    client.Shutdown(SocketShutdown.Both);
+                                client.Close();
+                                Connect();
+                            }
+                        }
+                        if (reConnect)
+                        {
+                            try
+                            {
+                                client.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             Connect();
                         }
                     }
-                    if (reConnect)
-                    {
-                        try
-                        {
-                            client.Close();
-                        }
-                        catch (Exception ex)
-                        {
-                        }
-                        Connect();
-                    }
+                    else Connect();
+                }catch(Exception ex)
+                {
+                    
                 }
-                else Connect();
             }
             thread = null;
             client = null;
@@ -163,8 +169,6 @@ namespace huqiang
             {
                 if (Packaging)
                     envelope.Clear();
-                //if (ConnectFaild != null)
-                //    ConnectFaild(ex.StackTrace);
             }
         }
         void EnvelopeCallback(byte[] data,byte tag)
@@ -212,12 +216,6 @@ namespace huqiang
         {
             a_Dispatch = DispatchMessage;
             auto = autodispatch;
-            //if (!auto)
-            //{
-            //    if (buff_size < 16)
-            //        buff_size = 16;
-            //    //drm = new DataReaderManage(buff_size);
-            //}
         }
         public void ConnectServer(IPAddress ip, int _port)
         {
