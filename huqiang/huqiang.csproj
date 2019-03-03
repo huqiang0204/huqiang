@@ -138,7 +138,6 @@
     <Compile Include="Core\UIModel\UIContainer.cs" />
     <Compile Include="Core\UIModel\UIPage.cs" />
     <Compile Include="Core\UIScript\CustomRawImage.cs" />
-    <Compile Include="Core\UIScript\ElementCreate.cs" />
     <Compile Include="Core\UIScript\Emoji.cs" />
     <Compile Include="Core\UIScript\EmojiMap.cs" />
     <Compile Include="Core\UIScript\EmojiString.cs" />

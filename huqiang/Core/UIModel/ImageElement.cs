@@ -44,9 +44,9 @@ namespace huqiang.UIModel
         public Sprite sprite;
         public Material material;
         string assetName;
-        string textureName;
-        string spriteName;
-        string shader;
+        public string textureName;
+        public string spriteName;
+        public string shader;
         string smat;
         public unsafe override byte* LoadFromBuff(byte* point)
         {
@@ -143,6 +143,10 @@ namespace huqiang.UIModel
         {
             base.Save(tar);
             Save(tar, ref this.imageAttribute);
+        }
+        public void SetSprite(Sprite sprite)
+        {
+            Main.GetComponent<Image>().sprite = sprite;
         }
     }
     public class ViewportElement : ImageElement

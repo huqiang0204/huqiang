@@ -34,8 +34,8 @@ namespace huqiang.UIModel
         public Texture texture;
         public Material material;
         string assetName;
-        string textureName;
-        string shader;
+        public string textureName;
+        public string shader;
         string smat;
         public unsafe override byte* LoadFromBuff(byte* point)
         {
@@ -115,6 +115,10 @@ namespace huqiang.UIModel
         {
             base.Save(tar);
             Save(tar, ref this.raw);
+        }
+        public void SetTexture(Texture t2d)
+        {
+            Main.GetComponent<RawImage>().texture=t2d;
         }
     }
 }

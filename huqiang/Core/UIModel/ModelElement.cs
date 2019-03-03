@@ -187,6 +187,24 @@ namespace huqiang.UIModel
             Save(tar, ref transAttribute);
         }
 
+        public void AddSizeScale()
+        {
+            if (transAttribute.SizeScale)
+            {
+                if(Main!=null)
+                {
+                    var scale= Main.GetComponent<SizeScaleEx>();
+                    if (scale == null)
+                        scale = Main.AddComponent<SizeScaleEx>();
+                    scale.scaleType = transAttribute.scaleType;
+                    scale.sizeType = transAttribute.sizeType;
+                    scale.anchorType = transAttribute.anchorType;
+                    scale.parentType = transAttribute.parentType;
+                    scale.margin = transAttribute.margin;
+                    scale.DesignSize = transAttribute.DesignSize;
+                }
+            }
+        }
         public static Vector2[] Anchors = new[] { new Vector2(0.5f, 0.5f), new Vector2(0, 0.5f),new Vector2(1, 0.5f),
         new Vector2(0.5f, 1),new Vector2(0.5f, 0), new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1)};
         public static void Docking(RectTransform rect, ScaleType dock, Vector2 pSize, Vector2 ds)

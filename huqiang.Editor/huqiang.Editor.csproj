@@ -46,10 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\AssetBundleCreate.cs" />
+    <Compile Include="Editor\EditorModelManager.cs" />
     <Compile Include="Editor\ElementEditor.cs" />
     <Compile Include="Editor\ExposeProperties.cs" />
     <Compile Include="Editor\MenuExtand.cs" />
     <Compile Include="Editor\SizeScaleEditor.cs" />
+    <Compile Include="Editor\ElementCreate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
