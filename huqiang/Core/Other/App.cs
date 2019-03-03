@@ -10,7 +10,6 @@ namespace huqiang
         static void Initial()
         {
             ThreadPool.Initial();
-            TextElement.fonts.Add(Font.CreateDynamicFontFromOSFont("Arial", 16));
             EmojiText.Emoji = Resources.Load<Texture2D>("emoji");
             ModelManager.Initial();
             if(Application.platform == RuntimePlatform.Android |Application.platform==RuntimePlatform.IPhonePlayer)

@@ -47,14 +47,14 @@ namespace huqiang.UIModel
         {
             if (fonts == null)
                 return null;
-            for(int i=0;i<fonts.Count;i++)
+            for (int i = 0; i < fonts.Count; i++)
             {
                 if (str == fonts[i].name)
                     return fonts[i];
             }
-            if (fonts.Count > 0)
-                return fonts[0];
-            return null;
+            if (fonts.Count == 0)
+                TextElement.fonts.Add(Font.CreateDynamicFontFromOSFont("Arial", 16));
+            return fonts[0];
         }
         public TextAttribute textAttribute;
         public Font font;

@@ -45,13 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\AssetBundleCreate.cs" />
-    <Compile Include="Editor\EditorModelManager.cs" />
-    <Compile Include="Editor\ElementEditor.cs" />
-    <Compile Include="Editor\ExposeProperties.cs" />
-    <Compile Include="Editor\MenuExtand.cs" />
-    <Compile Include="Editor\SizeScaleEditor.cs" />
-    <Compile Include="Editor\ElementCreate.cs" />
+    <Compile Include="CusEditor\AssetBundleCreate.cs" />
+    <Compile Include="CusEditor\EditorModelManager.cs" />
+    <Compile Include="CusEditor\ElementEditor.cs" />
+    <Compile Include="CusEditor\ExposeProperties.cs" />
+    <Compile Include="CusEditor\MenuExtand.cs" />
+    <Compile Include="CusEditor\SizeScaleEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
