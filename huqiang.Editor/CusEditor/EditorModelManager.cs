@@ -166,6 +166,5 @@ public class EditorModelManager
                 m.SetValue(o, t.GetComponent(m.FieldType));
         }
     }
-
 }
 

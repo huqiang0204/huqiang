@@ -74,6 +74,11 @@ namespace huqiang.Data
             return box;
         }
         static List<Vector3> vectors = new List<Vector3>();
+        /// <summary>
+        /// 推荐使用GetMeshCenter
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
         public static Box MeshGetCenter(MeshData mesh)
         {
             vectors.Clear();
@@ -115,6 +120,11 @@ namespace huqiang.Data
         static float tyx;
         [ThreadStatic]
         static float tzx;
+        /// <summary>
+        /// 推荐使用
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
         public static Box GetMeshCenter(MeshData mesh)
         {
             txi = 0;
