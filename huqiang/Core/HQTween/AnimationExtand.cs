@@ -120,7 +120,7 @@ namespace huqiang
             img.gameObject.SetActive(true);
             return AnimationManage.Manage.FindAni<ImageAnimat>((o) => { return o.image == img ? true : false; });
         }
-        public static void Play(this Image img, Sprite[] sprites, float inter = 16, bool loop=false, Action<ImageAnimat> over = null, bool hide = true, bool cover = true)
+        public static void Play(this Image img, Sprite[] sprites, float inter = 16, bool loop = false, Action<ImageAnimat> over = null, bool hide = true, bool cover = true)
         {
             if (img == null)
                 return;
