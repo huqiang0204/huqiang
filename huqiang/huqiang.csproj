@@ -123,6 +123,7 @@
     <Compile Include="Core\HQTween\GifAnimat.cs" />
     <Compile Include="Core\HQTween\ImageAnimat.cs" />
     <Compile Include="Core\HQTween\MoveAnimat.cs" />
+    <Compile Include="Core\HQTween\Progress.cs" />
     <Compile Include="Core\HQTween\PropertyAnimat.cs" />
     <Compile Include="Core\HQTween\RotateAnimat.cs" />
     <Compile Include="Core\HQTween\ScaleAnimat.cs" />
