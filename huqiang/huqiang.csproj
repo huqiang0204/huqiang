@@ -92,6 +92,7 @@
     <Compile Include="Core\Data\AuxiliaryLine.cs" />
     <Compile Include="Core\Data\Box.cs" />
     <Compile Include="Core\Data\DataBuffer.cs" />
+    <Compile Include="Core\Data\DataBufferExtand.cs" />
     <Compile Include="Core\Data\DownloadManager.cs" />
     <Compile Include="Core\Data\FakeStringArray.cs" />
     <Compile Include="Core\Data\FakeStruct.cs" />

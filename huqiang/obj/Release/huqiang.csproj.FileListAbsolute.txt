@@ -78,4 +78,3 @@ F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.IMGUIModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.TextRenderingModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.UIModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.UnityWebRequestModule.xml
-F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.csprojAssemblyReference.cache

@@ -56,7 +56,7 @@ namespace huqiang.Data
         public unsafe byte* ip;
         int msize;
         int element;
-        DataBuffer buffer;
+        public DataBuffer buffer;
         /// <summary>
         /// 
         /// </summary>

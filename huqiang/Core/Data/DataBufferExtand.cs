@@ -1,4 +1,5 @@
-﻿using System;
+﻿using huqiang.Data;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -43,10 +44,10 @@ namespace huqiang
             for (int i = 0; i < fields.Length; i++)
             {
                 var f = fields[i];
-                var atts = f.GetCustomAttribute(dbType, false);
+                var atts = f.GetCustomAttributes(dbType, false);
                 if (atts != null)
                 {
-                    var dba = atts as AttributeKey;
+                    var dba = atts[0] as AttributeKey;
                     var v = ReadValue(dba.Index, dba.type, fake);
                     if (dba.type == DataType.FakeStruct)
                     {
@@ -119,10 +120,10 @@ namespace huqiang
                 for (int i = 0; i < fields.Length; i++)
                 {
                     var f = fields[i];
-                    var atts = f.GetCustomAttribute(dbType, false);
+                    var atts = f.GetCustomAttributes(dbType, false);
                     if (atts != null)
                     {
-                        var dba = atts as AttributeKey;
+                        var dba = atts[0] as AttributeKey;
                         var v = ReadValue(j, dba.Index, dba.type, fake);
                         if (dba.type == DataType.FakeStruct)
                         {
@@ -195,11 +196,11 @@ namespace huqiang
                 for (int i = 0; i < feilds.Length; i++)
                 {
                     var f = feilds[i];
-                    var atts = f.GetCustomAttribute(dbType, false);
+                    var atts = f.GetCustomAttributes(dbType, false);
                     if (atts != null)
                     {
                         tmp[c].info = f;
-                        tmp[c].attribute = atts as AttributeKey;
+                        tmp[c].attribute = atts[0] as AttributeKey;
                         c++;
                     }
                 }
@@ -264,11 +265,11 @@ namespace huqiang
                 for (int i = 0; i < feilds.Length; i++)
                 {
                     var f = feilds[i];
-                    var atts = f.GetCustomAttribute(dbType, false);
+                    var atts = f.GetCustomAttributes(dbType, false);
                     if (atts != null)
                     {
                         tmp[c].info = f;
-                        tmp[c].attribute = atts as AttributeKey;
+                        tmp[c].attribute = atts[0] as AttributeKey;
                         c++;
                     }
                 }

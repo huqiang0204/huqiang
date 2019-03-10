@@ -24,6 +24,26 @@ namespace huqiang
                 Playing = true;
             }
         }
+        Sprite[][] spritesBuff;
+        int curIndex=0;
+        public void SetSprites(Sprite[][] sprites)
+        {
+            spritesBuff = sprites;
+            curIndex = -1;
+        }
+        public void Play(int index,bool cover=true)
+        {
+            if (spritesBuff == null)
+                return;
+            if (index == curIndex)
+                if (!cover)
+                    return;
+            if(index>-1&index<spritesBuff.Length)
+            {
+                curIndex = index;
+                Play(spritesBuff[index]);
+            }
+        }
         public void Pause()
         {
             Playing = false;
@@ -43,6 +63,7 @@ namespace huqiang
         public Action<ImageAnimat> PlayOver;
         public bool Loop;
         bool Playing;
+        public bool IsPlaying { get { return Playing; } }
         float lifetime = 0;
         int index = 0;
         public float Interval = 100;
