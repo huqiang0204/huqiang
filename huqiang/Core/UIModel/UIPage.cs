@@ -47,6 +47,8 @@ public class UIBase
         DataContext = obj;
         UIParent = ui;
         Parent = parent;
+        if (model != null)
+            main = model.Main;
         if (main != null)
         {
             var t = main.transform;
