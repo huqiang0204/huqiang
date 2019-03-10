@@ -65,7 +65,6 @@ namespace huqiang
         bool Playing;
         public bool IsPlaying { get { return Playing; } }
         float lifetime = 0;
-        int index = 0;
         public float Interval = 100;
         public bool autoHide;
         public void Update(float time)
