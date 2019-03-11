@@ -8,6 +8,17 @@ namespace huqiang.UIModel
 {
     public class ElementAsset
     {
+        public static Progress LoadAssetsAsync(string name)
+        {
+            Progress pro = new Progress();
+            pro.Play(LoadAssets(name));
+            return pro;
+        }
+        public static AssetBundleCreateRequest LoadAssets(string name)
+        {
+            string path = Application.streamingAssetsPath + "/" + name;  // 其他平台
+            return AssetBundle.LoadFromFileAsync(path);
+        }
         public static List<AssetBundle> bundles = new List<AssetBundle>();
         public static Texture FindTexture(string bundle, string tname)
         {

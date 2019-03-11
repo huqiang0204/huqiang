@@ -11,7 +11,7 @@ namespace huqiang.Data
         internal Int32 m_size;
         int m_len;
         int all_len;
-        DataBuffer buffer;
+        public DataBuffer buffer;
         /// <summary>
         /// 
         /// </summary>

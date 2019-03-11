@@ -45,10 +45,12 @@ namespace huqiang
         {
             Frames++;
             float timeslice = Time.deltaTime * 1000;
-            for (int i = 0; i < Actions.Count; i++)
+            int c = Actions.Count -1;
+            for (; c>=0; c--)
             {
-                if (Actions[i] != null)
-                    Actions[i].Update(timeslice);
+                if (Actions[c] != null)
+                    Actions[c].Update(timeslice);
+                else Actions.RemoveAt(c);
             }
             DoEvent(timeslice);
             DoFrameEvent();

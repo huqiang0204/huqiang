@@ -17,7 +17,11 @@ namespace huqiang.Data
     }
     public enum DataType
     {
-        String=0,
+        Double = -4,
+        Long = -3,
+        Float = -2,
+        Int = -1,
+        String =0,
         FakeStruct=1,
         FakeStructArray=2,
         ByteArray=3,

@@ -8,11 +8,20 @@ namespace huqiang.Data
 {
     public class FakeStringArray : ToBytes
     {
+        int len;
+        public int Length { get { return len; } }
         static byte[] zreo = new byte[4];
         string[] buf;
+        public string[] Data { get { return buf; } }
         public FakeStringArray(int size)
         {
             buf = new string[size];
+            len = size;
+        }
+        public FakeStringArray(string[] dat)
+        {
+            buf = dat;
+            len = dat.Length;
         }
         public string this[int index]
         {
@@ -27,7 +36,7 @@ namespace huqiang.Data
         }
         public unsafe FakeStringArray(Int32* point)
         {
-            int len = *point;
+            len = *point;
             point++;
             buf = new string[len];
             for (int i = 0; i < len; i++)
