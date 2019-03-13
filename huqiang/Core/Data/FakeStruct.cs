@@ -133,13 +133,15 @@ namespace huqiang.Data
             buffer.RemoveData(*a);
             *a = buffer.AddData(dat);
         }
-        public T GetData<T>(int index) where T : class
+        public unsafe T GetData<T>(int index) where T : class
         {
             if (index < 0)
                 return null;
             if (index >= element)
                 return null;
-            return GetData(index) as T;
+            int o = index * 4;
+            Int32* a = (Int32*)(ip + o);
+            return buffer.GetData(*a) as T;
         }
         public unsafe object GetData(int index)
         {
@@ -151,7 +153,7 @@ namespace huqiang.Data
             Int32* a = (Int32*)(ip + o);
             return buffer.GetData(*a);
         }
-        public unsafe void SetDataFromAddress(int* addr, object dat)
+        public unsafe void SetData(int* addr, object dat)
         {
             int a = (int)addr - (int)ip;
             if (a < 0|a>=msize)//超过界限
@@ -159,7 +161,7 @@ namespace huqiang.Data
             buffer.RemoveData(*addr);
             *addr = buffer.AddData(dat);
         }
-        public unsafe T GetDataFromAddress<T>(int* addr) where T : class
+        public unsafe T GetData<T>(int* addr) where T : class
         {
             int a = (int)addr - (int)ip;
             if (a < 0|a>=msize)//超过界限

@@ -137,7 +137,6 @@
     <Compile Include="Core\Math\MathH.cs" />
     <Compile Include="Core\Math\Physics.cs" />
     <Compile Include="Core\Math\Physics2D.cs" />
-    <Compile Include="Core\Math\RigidBody2D.cs" />
     <Compile Include="Core\Other\App.cs" />
     <Compile Include="Core\Other\CommandTransfer.cs" />
     <Compile Include="Core\Other\Extand.cs" />
