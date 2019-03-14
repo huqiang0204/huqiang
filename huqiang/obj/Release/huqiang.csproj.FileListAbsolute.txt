@@ -78,4 +78,16 @@ F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.IMGUIModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.TextRenderingModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.UIModule.xml
 F:\SelfWork\huqiang\huqiang\bin\Release\UnityEngine.UnityWebRequestModule.xml
+<<<<<<< HEAD
+=======
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.Cecil.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.SerializationLogic.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.DataContract.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\ExCSS.Unity.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.Legacy.NRefactory.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.UNetWeaver.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.CecilTools.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.Cecil.Pdb.dll
+F:\SelfWork\huqiang\huqiang\bin\Release\Unity.Cecil.Mdb.dll
+>>>>>>> be99cf33bc404e5fe4ab4d45e5197653aba65392
 F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.csprojAssemblyReference.cache
