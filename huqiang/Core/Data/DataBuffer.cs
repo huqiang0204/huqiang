@@ -135,7 +135,9 @@ namespace huqiang.Data
         }
         public void RemoveData(int index)
         {
-            if (index == 0)
+            if (index < 1)
+                return;
+            if (index >= buff.Length-1)
                 return;
             buff[index].rc--;
         }
