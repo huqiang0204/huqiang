@@ -137,8 +137,7 @@ namespace huqiang.Data
         {
             if (index <1)
                 return;
-            if (index >= buff.Length - 1)
-                return;
+            if (index < buff.Length)
             buff[index].rc--;
         }
         ReferenceCount[] buff;
