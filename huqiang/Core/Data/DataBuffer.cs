@@ -15,26 +15,26 @@ namespace huqiang.Data
     {
          Int32 Length { get; }
     }
-    public enum DataType
+    public class DataType
     {
-        Double = -4,
-        Long = -3,
-        Float = -2,
-        Int = -1,
-        String =0,
-        FakeStruct=1,
-        FakeStructArray=2,
-        ByteArray=3,
-        Int32Array=4,
-        FloatArray=5,
-        Int64Array = 6,
-        DoubleArray =7,
-        FakeStringArray=8
+        public const short String = 0;
+        public const short FakeStruct = 1;
+        public const short FakeStructArray = 2;
+        public const short ByteArray = 3;
+        public const short Int32Array = 4;
+        public const short FloatArray = 5;
+        public const short Int64Array = 6;
+        public const short DoubleArray = 7;
+        public const short FakeStringArray = 8;
+        public const short Int = 9;
+        public const short Float = 10;
+        public const short Long = 11;
+        public const short Double = 12;
     }
     //C#的这些类型不能被继承：System.ValueType, System.Enum, System.Delegate, System.Array, etc.
     public class DataBuffer
     {
-        static DataType GetType(object obj)
+        static Int32 GetType(object obj)
         {
             if (obj is string)
                 return DataType.String;
@@ -54,7 +54,7 @@ namespace huqiang.Data
                 return DataType.DoubleArray;
             else if (obj is FakeStringArray)
                 return DataType.FakeStringArray;
-            return (DataType)(-1);
+            return -1;
         }
         static int GetArraySize(Array array)
         {
@@ -94,7 +94,7 @@ namespace huqiang.Data
         {
             return AddData(obj, GetType(obj));
         }
-        internal int AddData(object obj, DataType type)
+        internal int AddData(object obj, Int32 type)
         {
             if (obj is string[])
                 return 0;
@@ -135,7 +135,9 @@ namespace huqiang.Data
         }
         public void RemoveData(int index)
         {
-            if (index == 0)
+            if (index <1)
+                return;
+            if (index >= buff.Length - 1)
                 return;
             buff[index].rc--;
         }
@@ -216,9 +218,9 @@ namespace huqiang.Data
             p++;
             Int32 offset = *p;
             rs += offset;
-            buff[index].obj = GetObject(rs, (DataType)buff[index].type, buff[index].size);
+            buff[index].obj = GetObject(rs, buff[index].type, buff[index].size);
         }
-        unsafe object GetObject(byte* bp, DataType type, int size)
+        unsafe object GetObject(byte* bp, short type, int size)
         {
             Int32* p = (Int32*)bp;
             int len = *p;
@@ -311,7 +313,7 @@ namespace huqiang.Data
                         return to.ToBytes();
                     return null;
                 }
-               
+
                 return Encoding.UTF8.GetBytes(str);
             }
         }

@@ -9,7 +9,7 @@ namespace huqiang
     public class AttributeKey : Attribute
     {
         public int Index;
-        public DataType type = DataType.Int;
+        public short type = DataType.Int;
     }
     public class DataBufferExtand
     {
@@ -21,6 +21,7 @@ namespace huqiang
         static Type dbType = typeof(AttributeKey);
         static Type fakeType = typeof(FakeStruct);
         static Type fakeArrayType = typeof(FakeStructArray);
+
         public static T ReadToClass<T>(DataBuffer buffer) where T : class, new()
         {
             var obj = new T();
@@ -43,137 +44,125 @@ namespace huqiang
             var fields = typ.GetFields();
             for (int i = 0; i < fields.Length; i++)
             {
-                var f = fields[i];
-                var atts = f.GetCustomAttributes(dbType, false);
+                var field = fields[i];
+                var atts = field.GetCustomAttributes(dbType, false);
                 if (atts != null)
                 {
-                    var dba = atts[0] as AttributeKey;
-                    var v = ReadValue(dba.Index, dba.type, fake);
-                    if (dba.type == DataType.FakeStruct)
+                    var att = atts[0] as AttributeKey;
+                    int index = att.Index;
+                    switch (att.type)
                     {
-                        if (f.FieldType == fakeType)
-                        {
-                            f.SetValue(obj, v);
-                        }
-                        else
-                        {
-                            var fs = v as FakeStruct;
-                            if (fs != null)
+                        case DataType.Int:
+                            field.SetValue(obj, fake[index]);
+                            break;
+                        case DataType.Float:
+                            field.SetValue(obj, fake.GetFloat(index));
+                            break;
+                        case DataType.Long:
+                            field.SetValue(obj, fake.GetInt64(index));
+                            break;
+                        case DataType.Double:
+                            field.SetValue(obj, fake.GetDouble(index));
+                            break;
+                        case DataType.FakeStruct:
+                            if (field.FieldType == fakeType)
+                                field.SetValue(obj, fake.GetData(index));
+                            else
                             {
-                                object instance = Activator.CreateInstance(f.FieldType);
-                                ReadToClass(f.FieldType, instance, fs);
-                                f.SetValue(obj, instance);
+                                var fs = fake.GetData(index) as FakeStruct;
+                                if (fs != null)
+                                {
+                                    object instance = Activator.CreateInstance(field.FieldType);
+                                    ReadToClass(field.FieldType, instance, fs);
+                                    field.SetValue(obj, instance);
+                                }
                             }
-                        }
-                    }
-                    else if (dba.type == DataType.FakeStructArray)
-                    {
-                        if (f.FieldType == fakeArrayType)
-                        {
-                            f.SetValue(obj, v);
-                        }
-                        else
-                        {
-                            var fs = v as FakeStructArray;
-                            if (fs != null)
+                            break;
+                        case DataType.FakeStructArray:
+                            if (field.FieldType == fakeType)
+                                field.SetValue(obj, fake.GetData(index));
+                            else
                             {
-                                Type eleType = f.FieldType.GetElementType();
-                                f.SetValue(obj, ReadStructArray(eleType, fs));
+                                var fs = fake.GetData(index) as FakeStructArray;
+                                if (fs != null)
+                                {
+                                    Type ele = field.FieldType.GetElementType();
+                                    field.SetValue(obj, ReadStructArray(ele, fs));
+                                }
                             }
-                        }
+                            break;
+                        default:
+                            field.SetValue(obj, fake.GetData(index));
+                            break;
                     }
-                    else if (dba.type == DataType.FakeStringArray)
-                    {
-                        var fs = v as FakeStringArray;
-                        if (fs != null)
-                        {
-                            f.SetValue(obj, fs.Data);
-                        }
-                    }
-                    else f.SetValue(obj, v);
                 }
-            }
-        }
-        static object ReadValue(int index, DataType type, FakeStruct fake)
-        {
-            switch (type)
-            {
-                case DataType.Int:
-                    return fake[index];
-                case DataType.Float:
-                    return fake.GetFloat(index);
-                case DataType.Long:
-                    return fake.GetInt64(index);
-                case DataType.Double:
-                    return fake.GetDouble(index);
-                default:
-                    return fake.GetData(index);
             }
         }
         static object ReadStructArray(Type eleType, FakeStructArray fake)
         {
             var fields = eleType.GetFields();
             Array array = Array.CreateInstance(eleType, fake.Length);
-            for (int j = 0; j < fake.Length; j++)
+            for (int index = 0; index < fake.Length; index++)
             {
-                var ins = Activator.CreateInstance(eleType);
+                var obj = Activator.CreateInstance(eleType);
                 for (int i = 0; i < fields.Length; i++)
                 {
-                    var f = fields[i];
-                    var atts = f.GetCustomAttributes(dbType, false);
+                    var field = fields[i];
+                    var atts = field.GetCustomAttributes(dbType, false);
                     if (atts != null)
                     {
-                        var dba = atts[0] as AttributeKey;
-                        var v = ReadValue(j, dba.Index, dba.type, fake);
-                        if (dba.type == DataType.FakeStruct)
+                        var att = atts[0] as AttributeKey;
+                        int offset = att.Index;
+                        switch (att.type)
                         {
-                            var fs = v as FakeStruct;
-                            if (fs != null)
-                            {
-                                object instance = Activator.CreateInstance(f.FieldType);
-                                ReadToClass(f.FieldType, instance, fs);
-                                f.SetValue(ins, instance);
-                            }
+                            case DataType.Int:
+                                field.SetValue(obj, fake[index, offset]);
+                                break;
+                            case DataType.Float:
+                                field.SetValue(obj, fake.GetFloat(index, offset));
+                                break;
+                            case DataType.Long:
+                                field.SetValue(obj, fake.GetInt64(index, offset));
+                                break;
+                            case DataType.Double:
+                                field.SetValue(obj, fake.GetDouble(index, offset));
+                                break;
+                            case DataType.FakeStruct:
+                                if (field.FieldType == fakeType)
+                                    field.SetValue(obj, fake.GetData(index, offset));
+                                else
+                                {
+                                    var fs = fake.GetData(index, offset) as FakeStruct;
+                                    if (fs != null)
+                                    {
+                                        object instance = Activator.CreateInstance(field.FieldType);
+                                        ReadToClass(field.FieldType, instance, fs);
+                                        field.SetValue(obj, instance);
+                                    }
+                                }
+                                break;
+                            case DataType.FakeStructArray:
+                                if (field.FieldType == fakeType)
+                                    field.SetValue(obj, fake.GetData(index, offset));
+                                else
+                                {
+                                    var fs = fake.GetData(index, offset) as FakeStructArray;
+                                    if (fs != null)
+                                    {
+                                        Type ele = field.FieldType.GetElementType();
+                                        field.SetValue(obj, ReadStructArray(ele, fs));
+                                    }
+                                }
+                                break;
+                            default:
+                                field.SetValue(obj, fake.GetData(index, offset));
+                                break;
                         }
-                        else if (dba.type == DataType.FakeStructArray)
-                        {
-                            var fs = v as FakeStructArray;
-                            if (fs != null)
-                            {
-                                Type slt = f.FieldType.GetElementType();
-                                f.SetValue(ins, ReadStructArray(slt, fs));
-                            }
-                        }
-                        else if (dba.type == DataType.FakeStringArray)
-                        {
-                            var fs = v as FakeStringArray;
-                            if (fs != null)
-                            {
-                                f.SetValue(ins, fs.Data);
-                            }
-                        }
-                        else f.SetValue(ins, v);
                     }
                 }
-                array.SetValue(ins, j);
+                array.SetValue(obj, index);
             }
             return array;
-        }
-        static object ReadValue(int index, int offset, DataType type, FakeStructArray fake)
-        {
-            switch (type)
-            {
-                case DataType.Int:
-                    return fake[index, offset];
-                case DataType.Float:
-                    return fake.GetFloat(index, offset);
-                case DataType.Long:
-                    return fake.GetInt64(index, offset);
-                case DataType.Double:
-                    return fake.GetDouble(index, offset);
-                default:
-                    return fake.GetData(index, offset);
-            }
         }
 
         public static DataBuffer WriteToDataBuffer(object obj)
@@ -217,34 +206,31 @@ namespace huqiang
         {
             for (int i = 0; i < len; i++)
             {
-                var att = tmp[i];
-                switch (att.attribute.type)
+                var att = tmp[i].attribute;
+                int index = att.Index;
+                var field = tmp[i].info;
+                switch (att.type)
                 {
                     case DataType.Int:
-                        fake[att.attribute.Index] = (Int32)att.info.GetValue(obj);
+                        fake[index] = (Int32)field.GetValue(obj);
                         break;
                     case DataType.Float:
-                        fake.SetFloat(att.attribute.Index, (float)att.info.GetValue(obj));
-                        break;
-                    case DataType.FakeStruct:
-                        fake.SetData(att.attribute.Index, WriteFakeStruct(att.info.GetValue(obj), fake.buffer));
-                        break;
-                    case DataType.FakeStructArray:
-                        fake.SetData(att.attribute.Index, WriteFakeStructArray(att.info.GetValue(obj), att.info.FieldType.GetElementType(), fake.buffer));
-                        break;
-                    case DataType.FakeStringArray:
-                        string[] ss = att.info.GetValue(obj) as string[];
-                        if (ss != null)
-                            fake.SetData(att.attribute.Index, new FakeStringArray(ss));
+                        fake.SetFloat(index, (float)field.GetValue(obj));
                         break;
                     case DataType.Long:
-                        fake.SetInt64(att.attribute.Index, (long)att.info.GetValue(obj));
+                        fake.SetInt64(index, (Int64)field.GetValue(obj));
                         break;
                     case DataType.Double:
-                        fake.SetDouble(att.attribute.Index, (double)att.info.GetValue(obj));
+                        fake.SetDouble(index, (Double)field.GetValue(obj));
+                        break;
+                    case DataType.FakeStruct:
+                        fake.SetData(index, WriteFakeStruct(field.GetValue(obj), fake.buffer));
+                        break;
+                    case DataType.FakeStructArray:
+                        fake.SetData(index, WriteFakeStructArray(field.GetValue(obj), field.FieldType.GetElementType(), fake.buffer));
                         break;
                     default:
-                        fake.SetData(att.attribute.Index, att.info.GetValue(obj));
+                        fake.SetData(index, field.GetValue(obj));
                         break;
                 }
             }
@@ -256,6 +242,7 @@ namespace huqiang
             Array arry = obj as Array;
             if (arry == null)
                 return null;
+
             var feilds = ele.GetFields();
             if (feilds != null)
             {
@@ -284,40 +271,37 @@ namespace huqiang
         }
         static void WriteFakeStructArray(Array array, Type ele, FieldDetial[] tmp, int len, FakeStructArray fake)
         {
-            for (int j = 0; j < fake.Length; j++)
+            for (int index = 0; index < fake.Length; index++)
             {
-                var obj = array.GetValue(j);
+                var obj = array.GetValue(index);
                 if (obj != null)
                     for (int i = 0; i < len; i++)
                     {
-                        var att = tmp[i];
-                        switch (att.attribute.type)
+                        var att = tmp[i].attribute;
+                        int offset = att.Index;
+                        var field = tmp[i].info;
+                        switch (att.type)
                         {
                             case DataType.Int:
-                                fake[j, att.attribute.Index] = (Int32)att.info.GetValue(obj);
+                                fake[index, offset] = (Int32)field.GetValue(obj);
                                 break;
                             case DataType.Float:
-                                fake.SetFloat(j, att.attribute.Index, (float)att.info.GetValue(obj));
-                                break;
-                            case DataType.FakeStruct:
-                                fake.SetData(j, att.attribute.Index, WriteFakeStruct(att.info.GetValue(obj), fake.buffer));
-                                break;
-                            case DataType.FakeStructArray:
-                                fake.SetData(j, att.attribute.Index, WriteFakeStructArray(att.info.GetValue(obj), att.info.FieldType.GetElementType(), fake.buffer));
-                                break;
-                            case DataType.FakeStringArray:
-                                string[] ss = att.info.GetValue(obj) as string[];
-                                if (ss != null)
-                                    fake.SetData(j, att.attribute.Index, new FakeStringArray(ss));
+                                fake.SetFloat(index, offset, (float)field.GetValue(obj));
                                 break;
                             case DataType.Long:
-                                fake.SetInt64(j, att.attribute.Index, (long)att.info.GetValue(obj));
+                                fake.SetInt64(index, offset, (Int64)field.GetValue(obj));
                                 break;
                             case DataType.Double:
-                                fake.SetDouble(j, att.attribute.Index, (double)att.info.GetValue(obj));
+                                fake.SetDouble(index, offset, (Double)field.GetValue(obj));
+                                break;
+                            case DataType.FakeStruct:
+                                fake.SetData(index, offset, WriteFakeStruct(field.GetValue(obj), fake.buffer));
+                                break;
+                            case DataType.FakeStructArray:
+                                fake.SetData(index, offset, WriteFakeStructArray(field.GetValue(obj), field.FieldType.GetElementType(), fake.buffer));
                                 break;
                             default:
-                                fake.SetData(j, att.attribute.Index, att.info.GetValue(obj));
+                                fake.SetData(index, offset, field.GetValue(obj));
                                 break;
                         }
                     }
