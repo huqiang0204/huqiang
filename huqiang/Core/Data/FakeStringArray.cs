@@ -34,10 +34,8 @@ namespace huqiang.Data
                 return buf[index];
             }
         }
-        public unsafe FakeStringArray(Int32* point)
+        public unsafe FakeStringArray(DataBuffer data, Int32* point, int len)
         {
-            len = *point;
-            point++;
             buf = new string[len];
             for (int i = 0; i < len; i++)
             {
@@ -46,7 +44,8 @@ namespace huqiang.Data
                 if (c > 0)
                 {
                     byte* bp = (byte*)point;
-                    buf[i] = Encoding.UTF8.GetString(Tool.GetByteArray(bp, c));
+                    if (data.AddressDetection(bp, c))
+                        buf[i] = Encoding.UTF8.GetString(Tool.GetByteArray(bp, c));
                     bp += c;
                     point = (Int32*)bp;
                 }

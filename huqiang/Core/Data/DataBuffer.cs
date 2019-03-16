@@ -135,10 +135,10 @@ namespace huqiang.Data
         }
         public void RemoveData(int index)
         {
-            if (index <1)
+            if (index < 1)
                 return;
             if (index < buff.Length)
-            buff[index].rc--;
+                buff[index].rc--;
         }
         ReferenceCount[] buff;
         int max = 1;
@@ -166,6 +166,8 @@ namespace huqiang.Data
             tempStart = (byte*)src;
             Int32* ip = (Int32*)src;
             ip = ReadHead(ip);
+            if (fakeStruct == null)
+                return;
             Int32 len = *ip;
             ip++;
             Int32* rs = ip + len * 3;
@@ -195,10 +197,13 @@ namespace huqiang.Data
             int len = *p;
             if (len > 0)
             {
-                len /= 4;
                 p++;
-                fakeStruct = new FakeStruct(this, len, p);
-                p += len;
+                if (AddressDetection((byte*)p, len))
+                {
+                    len /= 4;
+                    fakeStruct = new FakeStruct(this, len, p);
+                    p += len;
+                }
             }
             else
             {
@@ -208,6 +213,8 @@ namespace huqiang.Data
         }
         unsafe void GetTable(Int32* p, int index, byte* rs)
         {
+            if (!AddressDetection((byte*)p, 8))
+                return;
             Int16* sp = (Int16*)p;
             buff[index].rc = *sp;
             sp++;
@@ -217,7 +224,8 @@ namespace huqiang.Data
             p++;
             Int32 offset = *p;
             rs += offset;
-            buff[index].obj = GetObject(rs, buff[index].type, buff[index].size);
+            if (AddressDetection(rs, 4))//如果资源地址合法
+                buff[index].obj = GetObject(rs, buff[index].type, buff[index].size);
         }
         unsafe object GetObject(byte* bp, short type, int size)
         {
@@ -226,6 +234,8 @@ namespace huqiang.Data
             if (len == 0)
                 return null;
             p++;
+            if (!AddressDetection((byte*)p, len))
+                return null;
             if (type == DataType.String)
             {
                 int offset = (int)((byte*)p - tempStart);
@@ -284,9 +294,24 @@ namespace huqiang.Data
             }
             else if (type == DataType.FakeStringArray)
             {
-                return new FakeStringArray(p);
+                len = *p;
+                p++;
+                return new FakeStringArray(this, p, len);
             }
             return null;
+        }
+        /// <summary>
+        /// 检测地址是否合法
+        /// </summary>
+        /// <param name="bp"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public unsafe bool AddressDetection(byte* bp, int len)
+        {
+            var offset = bp - tempStart;
+            if (offset + len > temp.Length)
+                return false;
+            return true;
         }
         static byte[] GetBytes(object obj)
         {
