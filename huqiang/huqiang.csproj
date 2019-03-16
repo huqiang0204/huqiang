@@ -121,6 +121,7 @@
     <Compile Include="Core\HQTween\Aanimation.cs" />
     <Compile Include="Core\HQTween\AnimatBase.cs" />
     <Compile Include="Core\HQTween\AnimationExtand.cs" />
+    <Compile Include="Core\HQTween\ColorAnimat.cs" />
     <Compile Include="Core\HQTween\GifAnimat.cs" />
     <Compile Include="Core\HQTween\ImageAnimat.cs" />
     <Compile Include="Core\HQTween\MoveAnimat.cs" />
