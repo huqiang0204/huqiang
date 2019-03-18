@@ -15,29 +15,33 @@ namespace huqiang.Data
         public Color color;
         public unsafe static Int32 Size { get { return sizeof(Coordinate); } }
     }
+    public class MeshDataType
+    {
+        public const Int32 Coordinate = -1;
+        public const Int32 Name = 0;
+        public const Int32 Vertices = 1;
+        public const Int32 Normals = 2;
+        public const Int32 UV = 3;
+        public const Int32 Triangles = 4;
+        public const Int32 Child = 5;
+        public const Int32 Type = 6;
+        public const Int32 Materials = 7;
+        public const Int32 SubTriangles = 8;
+    }
     public class MeshData
     {
         public static Color DefColor = new Color(0.5f, 0.5f, 0.5f, 1);
-        enum DataType
-        {
-            Coordinate = -1,
-            Name = 0,
-            Vertices = 1,
-            Normals = 2,
-            UV = 3,
-            Triangles = 4,
-            Child = 5,
-            Type = 6,
-        }
         public static byte[] Zreo = new byte[4];
         public MeshData[] child;
-        public int Type;
+        public int subMeshCount;
         public string name;
         public Vector3[] vertex;
         public Vector2[] uv;
         public Vector3[] normals;
         public Int32[] tris;
+        public Int32[][] subtris;
         public Coordinate coordinate;
+        public string materials;
         public MeshData()
         {
             coordinate.scale = Vector3.one;
@@ -53,50 +57,62 @@ namespace huqiang.Data
             {
                 int tag = *(Int32*)bp;
                 bp += 4;
-                switch ((DataType)tag)
+                switch (tag)
                 {
-                    case DataType.Type:
-                        Type = *(Int32*)bp;
+                    case MeshDataType.Type:
+                        subMeshCount = *(Int32*)bp;
                         bp += 4;
                         break;
-                    case DataType.Coordinate:
+                    case MeshDataType.Coordinate:
                         int c = *(Int32*)bp;
                         bp += 4;
                         ReadCoordinate(bp, c);
                         bp += c;
                         break;
-                    case DataType.Name:
+                    case MeshDataType.Name:
                         c = *(Int32*)bp;
                         bp += 4;
                         name = Encoding.UTF8.GetString(Tool.GetByteArray(bp, c));
                         bp += c;
                         break;
-                    case DataType.Vertices:
+                    case MeshDataType.Vertices:
                         vertex = ReadVectors(bp);
                         if (vertex != null)
                             bp += vertex.Length * 12;
                         bp += 4;
                         break;
-                    case DataType.Normals:
+                    case MeshDataType.Normals:
                         normals = ReadVectors(bp);
                         if (normals != null)
                             bp += normals.Length * 12;
                         bp += 4;
                         break;
-                    case DataType.UV:
+                    case MeshDataType.UV:
                         uv = ReadUV(bp);
                         if (uv != null)
                             bp += uv.Length * 8;
                         bp += 4;
                         break;
-                    case DataType.Triangles:
+                    case MeshDataType.Triangles:
                         tris = ReadTri(bp);
                         if (tris != null)
                             bp += tris.Length * 4;
                         bp += 4;
                         break;
-                    case DataType.Child:
+                    case MeshDataType.Child:
                         bp = ReadChild(bp, this);
+                        break;
+                    case MeshDataType.Materials:
+                        c = *(Int32*)bp;
+                        bp += 4;
+                        materials = Encoding.UTF8.GetString(Tool.GetByteArray(bp, c));
+                        bp += c;
+                        break;
+                    case MeshDataType.SubTriangles:
+                        c = *(Int32*)bp;
+                        bp += 4;
+                        subtris = ReadTris(bp);
+                        bp += c;
                         break;
                 }
             }
@@ -174,6 +190,31 @@ namespace huqiang.Data
             }
             return null;
         }
+        unsafe static int[][] ReadTris(byte* bp)
+        {
+            var len = *(Int32*)bp;
+            int[][] tris = new int[len][];
+            bp += 4;
+            for(int i=0;i<len;i++)
+            {
+                int l = *bp;
+                bp += 4;
+                if (l > 0)
+                {
+                    Int32* p = (Int32*)bp;
+                    bp += l;
+                    l /= 4;
+                    var buf = new int[l];
+                    for (int j = 0; j < l; j++)
+                    {
+                        buf[j] = *p;
+                        p++;
+                    }
+                    tris[i] = buf;
+                }
+            }
+            return tris;
+        }
         unsafe static byte* ReadChild(byte* bp, MeshData mesh)
         {
             var len = *(Int32*)bp;
@@ -206,6 +247,10 @@ namespace huqiang.Data
                 seg++;
             if (child != null)
                 seg++;
+            if (materials != null)
+                seg++;
+            if (subtris != null)
+                seg++;
             return seg;
         }
         public void WriteToStream(Stream stream)
@@ -213,8 +258,8 @@ namespace huqiang.Data
             Int32 seg = GetSegment();
             var tmp = seg.ToBytes();
             stream.Write(tmp, 0, 4);
-            stream.Write(((Int32)DataType.Type).ToBytes(), 0, 4);
-            stream.Write(Type.ToBytes(), 0, 4);
+            stream.Write((MeshDataType.Type).ToBytes(), 0, 4);
+            stream.Write(subMeshCount.ToBytes(), 0, 4);
             unsafe
             {
                 fixed (Coordinate* coor = &coordinate)
@@ -223,16 +268,18 @@ namespace huqiang.Data
                 }
             }
             if (name != null)
-                WriteName(stream, name);
+                WriteString(stream, MeshDataType.Name, name);
+            if (materials != null)
+                WriteString(stream,MeshDataType.Materials, materials);
             if (vertex != null)
             {
-                tmp = ((Int32)DataType.Vertices).ToBytes();
+                tmp = (MeshDataType.Vertices).ToBytes();
                 stream.Write(tmp, 0, 4);
                 WriteVectors(stream, vertex);
             }
             if (normals != null)
             {
-                tmp = ((Int32)DataType.Normals).ToBytes();
+                tmp = (MeshDataType.Normals).ToBytes();
                 stream.Write(tmp, 0, 4);
                 WriteVectors(stream, normals);
             }
@@ -242,6 +289,8 @@ namespace huqiang.Data
                 WriteTri(stream, tris);
             if (child != null)
                 WriteChild(stream, child);
+            if (subtris != null)
+                WriteSubTri(stream,subtris);
         }
         public void WriteToFile(string path)
         {
@@ -253,7 +302,7 @@ namespace huqiang.Data
         }
         unsafe static void WriteCoordinate(Stream stream, Coordinate* coordinate)
         {
-            var tmp = ((Int32)DataType.Coordinate).ToBytes();
+            var tmp = (MeshDataType.Coordinate).ToBytes();
             stream.Write(tmp, 0, 4);
             int size = Coordinate.Size;
             stream.Write(size.ToBytes(), 0, 4);
@@ -266,9 +315,9 @@ namespace huqiang.Data
             }
             stream.Write(buf, 0, size);
         }
-        static void WriteName(Stream stream, string name)
+        static void WriteString(Stream stream, int type, string name)
         {
-            var tmp = ((Int32)DataType.Name).ToBytes();
+            var tmp = type.ToBytes();
             stream.Write(tmp, 0, 4);
             var buf = Encoding.UTF8.GetBytes(name);
             Int32 len = buf.Length;
@@ -286,7 +335,7 @@ namespace huqiang.Data
         }
         static void WriteUV(Stream stream, Vector2[] uvs)
         {
-            var tmp = ((Int32)DataType.UV).ToBytes();
+            var tmp = (MeshDataType.UV).ToBytes();
             stream.Write(tmp, 0, 4);
             int len = uvs.Length * 8;
             IntPtr v = Marshal.UnsafeAddrOfPinnedArrayElement(uvs, 0);
@@ -297,7 +346,7 @@ namespace huqiang.Data
         }
         static void WriteTri(Stream stream, int[] tri)
         {
-            var tmp = ((Int32)DataType.Triangles).ToBytes();
+            var tmp = (MeshDataType.Triangles).ToBytes();
             stream.Write(tmp, 0, 4);
             int len = tri.Length * 4;
             IntPtr v = Marshal.UnsafeAddrOfPinnedArrayElement(tri, 0);
@@ -306,9 +355,37 @@ namespace huqiang.Data
             stream.Write(len.ToBytes(), 0, 4);
             stream.Write(buf, 0, buf.Length);
         }
+        /// <summary>
+        /// 4字节标记,4字节总长度,4字节数组长度,数据
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="tris"></param>
+        static void WriteSubTri(Stream stream, int[][] tris)
+        {
+            var tmp = (MeshDataType.SubTriangles).ToBytes();
+            stream.Write(tmp, 0, 4);
+            int len = tris.Length;
+            int all = 0;
+            for(int i=0;i<len;i++)
+            {
+                all += tris[i].Length * 4+4;
+            }
+            stream.Write(all.ToBytes(), 0, 4);
+            stream.Write(len.ToBytes(), 0, 4);
+            for(int i=0;i<len;i++)
+            {
+                var tri = tris[i];
+                len = tri.Length;
+                IntPtr v = Marshal.UnsafeAddrOfPinnedArrayElement(tri, 0);
+                var buf = new byte[len];
+                Marshal.Copy(v, buf, 0, len);
+                stream.Write(len.ToBytes(), 0, 4);
+                stream.Write(buf, 0, buf.Length);
+            }
+        }
         static void WriteChild(Stream stream, MeshData[] meshes)
         {
-            var tmp = ((Int32)DataType.Child).ToBytes();
+            var tmp = (MeshDataType.Child).ToBytes();
             stream.Write(tmp, 0, 4);
             int len = meshes.Length;
             tmp = len.ToBytes();
@@ -320,7 +397,7 @@ namespace huqiang.Data
         }
 
         public GameObject AssociatedObject;
-        public GameObject CreateGameObject()
+        public GameObject CreateGameObject(Action<MeshData,GameObject> action = null)
         {
             GameObject game = new GameObject(name);
             AssociatedObject = game;
@@ -334,6 +411,12 @@ namespace huqiang.Data
                     ms.normals = normals;
                 if (tris != null)
                     ms.triangles = tris;
+                else if(subtris!=null)
+                {
+                    ms.subMeshCount = subMeshCount;
+                    for (int i = 0; i < subMeshCount; i++)
+                        ms.SetTriangles(subtris[i],i);
+                }
                 else
                 {
                     tris = new int[vertex.Length];
@@ -346,12 +429,14 @@ namespace huqiang.Data
                 for (int i = 0; i < child.Length; i++)
                 {
                     var ch = child[i];
-                    var son = ch.CreateGameObject();
+                    var son = ch.CreateGameObject(action);
                     var tran = son.transform;
                     tran.SetParent(game.transform);
                     tran.localPosition = ch.coordinate.pos;
                     tran.localScale = ch.coordinate.scale;
                     tran.localRotation = ch.coordinate.quat;
+                    if (action != null)
+                        action(ch,son);
                 }
             return game;
         }
@@ -372,7 +457,7 @@ namespace huqiang.Data
                     }
                 }
         }
-        public static MeshData LoadFromGameObject(Transform game)
+        public static MeshData LoadFromGameObject(Transform game, Action<MeshData, GameObject> action=null)
         {
             var mesh = new MeshData();
             mesh.AssociatedObject = game.gameObject;
@@ -380,21 +465,25 @@ namespace huqiang.Data
             var mf = game.GetComponent<MeshFilter>();
             if (mf != null)
             {
-                mesh.Type = 1;
+                Mesh me;
                 if (Application.isPlaying)
                 {
-                    mesh.vertex = mf.mesh.vertices;
-                    mesh.tris = mf.mesh.triangles;
+                    me = mf.mesh;
                 }
                 else
                 {
-                    mesh.vertex = mf.sharedMesh.vertices;
-                    mesh.tris = mf.sharedMesh.triangles;
+                    me = mf.sharedMesh;
                 }
-            }
-            else
-            {
-                mesh.Type = 0;
+                mesh.vertex = me.vertices;
+                mesh.subMeshCount = me.subMeshCount;
+                if (mesh.subMeshCount > 1)
+                {
+                    int[][] tris = new int[mesh.subMeshCount][];
+                    for (int i = 0; i < mesh.subMeshCount; i++)
+                        tris[i] = me.GetTriangles(i);
+                    mesh.subtris = tris;
+                }
+                else mesh.tris = me.triangles;
             }
             var t = game.transform;
             mesh.coordinate.pos = t.localPosition;
@@ -405,8 +494,10 @@ namespace huqiang.Data
             {
                 mesh.child = new MeshData[c];
                 for (int i = 0; i < c; i++)
-                    mesh.child[i] = LoadFromGameObject(t.GetChild(i));
+                    mesh.child[i] = LoadFromGameObject(t.GetChild(i),action);
             }
+            if (action != null)
+                action(mesh,mesh.AssociatedObject);
             return mesh;
         }
         public MeshData FindAssociatedMesh(GameObject game)
