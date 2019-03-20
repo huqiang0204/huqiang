@@ -206,7 +206,7 @@ namespace huqiang.Data
                 tp++;
             }
         }
-        public unsafe void SetDataFromAddress(int* addr, object dat)
+        public unsafe void SetData(int* addr, object dat)
         {
             int a = (int)addr - (int)ip;
             if (a < 0 | a >= all_len)//超过界限
@@ -214,7 +214,7 @@ namespace huqiang.Data
             buffer.RemoveData(*addr);
             *addr = buffer.AddData(dat);
         }
-        public unsafe T GetDataFromAddress<T>(int* addr) where T : class
+        public unsafe T GetData<T>(int* addr) where T : class
         {
             int a = (int)addr - (int)ip;
             if (a < 0 | a >= all_len)//超过界限

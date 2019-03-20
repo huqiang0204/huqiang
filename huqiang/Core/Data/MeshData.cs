@@ -197,7 +197,7 @@ namespace huqiang.Data
             bp += 4;
             for(int i=0;i<len;i++)
             {
-                int l = *bp;
+                int l = *(Int32*)bp;
                 bp += 4;
                 if (l > 0)
                 {
@@ -366,20 +366,21 @@ namespace huqiang.Data
             stream.Write(tmp, 0, 4);
             int len = tris.Length;
             int all = 0;
-            for(int i=0;i<len;i++)
+            for (int i = 0; i < len; i++)
             {
-                all += tris[i].Length * 4+4;
+                all += tris[i].Length * 4 + 4;
             }
+            all += 4;
             stream.Write(all.ToBytes(), 0, 4);
             stream.Write(len.ToBytes(), 0, 4);
-            for(int i=0;i<len;i++)
+            for (int i = 0; i < len; i++)
             {
                 var tri = tris[i];
-                len = tri.Length;
+                var l = tri.Length * 4;
                 IntPtr v = Marshal.UnsafeAddrOfPinnedArrayElement(tri, 0);
-                var buf = new byte[len];
-                Marshal.Copy(v, buf, 0, len);
-                stream.Write(len.ToBytes(), 0, 4);
+                var buf = new byte[l];
+                Marshal.Copy(v, buf, 0, l);
+                stream.Write(l.ToBytes(), 0, 4);
                 stream.Write(buf, 0, buf.Length);
             }
         }
