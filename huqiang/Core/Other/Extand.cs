@@ -195,5 +195,38 @@ namespace huqiang
             float r = Mathf.Sqrt(len * len / sx);
             return new Vector3(v.x * r, v.y * r, v.z * r);
         }
+        /// <summary>
+        /// 向量向某个向量旋转后的位置
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static Vector3 RotateDirection(this Vector3 v, Vector3 v2)
+        {
+            var q = Quaternion.LookRotation(v2);
+            return q * v;
+        }
+        /// <summary>
+        /// 向量旋转多少欧拉角后的位置
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static Vector3 RotateAngle(this Vector3 v, Vector3 v2)
+        {
+            var q = Quaternion.Euler(v2);
+            return q * v;
+        }
+        /// <summary>
+        /// 某个向量旋转多少欧拉角后的四元数
+        /// </summary>
+        /// <param name="v">向量</param>
+        /// <param name="v2">角度</param>
+        /// <returns></returns>
+        public static Quaternion Rotate(this Vector3 v, Vector3 v2)
+        {
+            var q = Quaternion.LookRotation(v);
+            return q * Quaternion.Euler(v2);
+        }
     }
 }
