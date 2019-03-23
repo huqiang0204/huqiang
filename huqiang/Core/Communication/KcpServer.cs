@@ -132,6 +132,7 @@ namespace huqiang
             link.endpPoint = ep;
             link.envelope = new KcpEnvelope();
             link.time = DateTime.Now.Ticks;
+            link.Index = min;
             links[min]=link;
             return link;
         }
@@ -140,6 +141,10 @@ namespace huqiang
             var link = CreateNewLink(endPoint);
             lock (link.metaData)
                 link.metaData.Enqueue(dat);
+        }
+        public void RemoveLink(KcpLink link)
+        {
+            links[link.Index] = null;
         }
     }
 }
