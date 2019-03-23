@@ -83,9 +83,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Communication\EnvelopeBuffer.cs" />
     <Compile Include="Core\Communication\EnvelopeEx.cs" />
+    <Compile Include="Core\Communication\EnvelopeType.cs" />
     <Compile Include="Core\Communication\FreePort.cs" />
+    <Compile Include="Core\Communication\KcpEnvelope.cs" />
+    <Compile Include="Core\Communication\KcpLink.cs" />
+    <Compile Include="Core\Communication\KcpListener.cs" />
+    <Compile Include="Core\Communication\KcpServer.cs" />
+    <Compile Include="Core\Communication\TcpEnvelope.cs" />
     <Compile Include="Core\Communication\TcpScoket.cs" />
     <Compile Include="Core\Communication\UdpServer.cs" />
     <Compile Include="Core\Communication\UdpSocket.cs" />

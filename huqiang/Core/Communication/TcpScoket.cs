@@ -6,28 +6,6 @@ using System.Threading;
 
 namespace huqiang
 {
-    public class EnvelopeType 
-    {
-        public const byte Mate = 0;
-        public const byte AesMate = 1;
-        public const byte Json = 2;
-        public const byte AesJson = 3;
-        public const byte DataBuffer = 4;
-        public const byte AesDataBuffer = 5;
-        public const byte String = 6;
-        public const byte AesString = 7;
-    }
-    public struct EnvelopeHead
-    {
-        /// <summary>
-        /// 前三个自己为id，第四字节为tag <<=24
-        /// </summary>
-        public UInt32 Tag;
-        public UInt32 Lenth;
-        public UInt16 CurPart;
-        public UInt16 AllPart;
-        public UInt32 PartLen;
-    }
     class SocData
     {
         public byte tag;
@@ -37,7 +15,7 @@ namespace huqiang
     public class TcpSocket
     {
         const int bufferSize = 262144;
-        EnvelopeBuffer envelope;
+        TcpEnvelope envelope;
         Thread thread;
         private Socket client = null;
         public bool isConnection { get { if (client == null) return false; return client.Connected; } }
@@ -49,7 +27,7 @@ namespace huqiang
             if(type!=PackType.None)
             {
                 Packaging = true;
-                envelope = new EnvelopeBuffer(es);
+                envelope = new TcpEnvelope(es);
                 envelope.type = type;
             }
             queue = new Queue<SocData>();
@@ -143,7 +121,7 @@ namespace huqiang
                         for (int i = 0; i < dat.Count; i++)
                         {
                             var item = dat[i];
-                            EnvelopeCallback(item.data,item.tag);
+                            EnvelopeCallback(item.data,item.type);
                         }
                     }
                 }
