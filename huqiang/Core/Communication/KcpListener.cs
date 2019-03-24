@@ -11,7 +11,7 @@ namespace huqiang
     {
         public UdpClient soc;
         Thread thread;
-        bool running;
+        protected bool running;
         int remotePort;
         int _port;
         public int Port { get { return _port; } }
@@ -47,10 +47,11 @@ namespace huqiang
                 }
             }
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
             running = false;
             thread = null;
+            soc.Close();
         }
         public virtual void Dispatch(byte[] dat, IPEndPoint endPoint)
         {

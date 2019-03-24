@@ -10,23 +10,21 @@ namespace huqiang
     public class KcpServer:KcpListener
     {
         public static int SingleCount = 2048;
+        public static Func<KcpServer, KcpLink> CreateLink = (o) => { return new KcpLink(o); };
         public static KcpServer Instance;
         Queue<SocData> queue;
-        bool running;
-        bool auto;
-        Int16 id;
         Thread server;
         Thread[] threads;
         KcpLink[] links;
         int maxLink;
         int tCount;
         public Int32 allLink;
-        public KcpServer(  int port=0, int remote=0, int threadCount = 8):base(port,remote)
+        public KcpServer(int port = 0, int remote = 0, int threadCount = 8) : base(port, remote)
         {
             Instance = this;
             tCount = threadCount;
             allLink = threadCount * SingleCount;
-            links = new KcpLink[threadCount*SingleCount];
+            links = new KcpLink[threadCount * SingleCount];
             threads = new Thread[threadCount];
             for (int i = 0; i < threadCount; i++)
             {
@@ -66,7 +64,7 @@ namespace huqiang
         void Run(object index)
         {
             int os = (int)index;
-            while (true)
+            while (running)
             {
                 var now = DateTime.Now;
                 long a = now.Ticks;
@@ -87,12 +85,7 @@ namespace huqiang
                     Thread.Sleep(10 - (int)t);
             }
         }
-        public void Close()
-        {
-            soc.Close();
-            running = false;
-        }
-        
+
         //设置用户的udp对象用于发送消息
         public KcpLink CreateNewLink(IPEndPoint ep)
         {
@@ -104,7 +97,7 @@ namespace huqiang
                     id = *(Int32*)bp;
             }
             int min = maxLink;
-            for (int i = maxLink; i>=0; i--)
+            for (int i = maxLink; i >= 0; i--)
             {
                 var lin = links[i];
                 if (lin != null)
@@ -119,16 +112,16 @@ namespace huqiang
                     }
                 }
                 else min = i;
-           
+
             }
-            KcpLink link = new KcpLink(this);
+            KcpLink link = CreateLink(this);
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
             link.envelope = new KcpEnvelope();
             link.time = DateTime.Now.Ticks;
             link.Index = min;
-            links[min]=link;
+            links[min] = link;
             return link;
         }
         public override void Dispatch(byte[] dat, IPEndPoint endPoint)
@@ -140,6 +133,11 @@ namespace huqiang
         public void RemoveLink(KcpLink link)
         {
             links[link.Index] = null;
+        }
+        public override void Dispose()
+        {
+            base.Dispose();
+            Instance = null;
         }
     }
 }
