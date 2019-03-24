@@ -69,27 +69,22 @@ namespace huqiang
             while (true)
             {
                 var now = DateTime.Now;
-                int a = now.Millisecond;
+                long a = now.Ticks;
                 int s = os;
                 for (int i = 0; i < SingleCount; i++)
                 {
                     var c = links[s];
                     if (c != null)
                     {
-                        c.Recive(now.Ticks);
+                        c.Recive(a);
                     }
                     s += tCount;
                 }
-                int t = DateTime.Now.Millisecond;
+                long t = DateTime.Now.Ticks;
                 t -= a;
-                if (t < 0)
-                    t += 1000;
-                t = 10 - t;
-                if (t < 0)
-                    t = 10;
-                else if (t > 10)
-                    t = 10;
-                Thread.Sleep(t);
+                t /= 10000;
+                if (t < 10)
+                    Thread.Sleep(10 - (int)t);
             }
         }
         public void Close()

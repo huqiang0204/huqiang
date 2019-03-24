@@ -8,6 +8,7 @@ namespace huqiang
     public class KcpLink
     {
         KcpServer kcp;
+        public int Index;
         public KcpLink(KcpServer listener)
         {
             kcp = listener;
