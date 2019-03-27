@@ -105,6 +105,7 @@
     <Compile Include="Core\Data\LocalFileManager.cs" />
     <Compile Include="Core\Data\MeshData.cs" />
     <Compile Include="Core\Data\RecordManager.cs" />
+    <Compile Include="Core\Data\ScalableData.cs" />
     <Compile Include="Core\Event\CheckEvent.cs" />
     <Compile Include="Core\Event\EmojiInput.cs" />
     <Compile Include="Core\Event\EventCallBack.cs" />
@@ -140,6 +141,14 @@
     <Compile Include="Core\LeanTween\LTDescr.cs" />
     <Compile Include="Core\LeanTween\LTDescrOptional.cs" />
     <Compile Include="Core\LeanTween\LTSeq.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Helper.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Safe.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Safe32.Dirty.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Safe64.Dirty.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Unsafe.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Unsafe32.Dirty.cs" />
+    <Compile Include="Core\LZ4\LZ4Codec.Unsafe64.Dirty.cs" />
     <Compile Include="Core\Math\MathH.cs" />
     <Compile Include="Core\Math\Physics.cs" />
     <Compile Include="Core\Math\Physics2D.cs" />
@@ -154,7 +163,6 @@
     <Compile Include="Core\UIModel\DragContent.cs" />
     <Compile Include="Core\UIModel\DropdownEx.cs" />
     <Compile Include="Core\UIModel\ElementAsset.cs" />
-    <Compile Include="Core\UIModel\GridArea.cs" />
     <Compile Include="Core\UIModel\GridScroll.cs" />
     <Compile Include="Core\UIModel\ImageElement.cs" />
     <Compile Include="Core\UIModel\ModelElement.cs" />

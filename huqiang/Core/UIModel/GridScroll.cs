@@ -20,8 +20,14 @@ namespace huqiang.UIModel
             Items = new List<ScrollItem>();
             Buff = new List<ScrollItem>();
         }
+        /// <summary>
+        /// 滚动方式
+        /// </summary>
         public ScrollType scrollType;
         ModelElement model;
+        /// <summary>
+        /// Item的ui模型
+        /// </summary>
         public ModelElement ItemMod
         {
             set
@@ -44,10 +50,16 @@ namespace huqiang.UIModel
             }
             get { return model; }
         }
+        /// <summary>
+        /// 视口组件
+        /// </summary>
         public RectTransform View;
         IList dataList;
         Array array;
         FakeArray fakeStruct;
+        /// <summary>
+        /// 数据绑定类型包含 IList,Array,FakeArray
+        /// </summary>
         public object BindingData { get {
                 if (dataList != null)
                     return dataList;
@@ -92,13 +104,24 @@ namespace huqiang.UIModel
                 return array.GetValue(index);
             return null;
         }
+        /// <summary>
+        /// 所有激活的条目
+        /// </summary>
         public List<ScrollItem> Items;
         List<ScrollItem> Buff;
+        /// <summary>
+        /// 每项条目的尺寸
+        /// </summary>
         public Vector2 ItemSize;
+        /// <summary>
+        /// 要生成的条目类结构
+        /// </summary>
         public Type ItemObject=typeof(GameObject);
         public int Column = 1;
         public int Row = 0;
-   
+        /// <summary>
+        /// 如果使用热更新,无法使用反射,使用此委托,在热更新中进行反射
+        /// </summary>
         public Action<ScrollItem, GameObject> Reflection;
         ScrollItem CreateItem()
         {
@@ -118,11 +141,29 @@ namespace huqiang.UIModel
                 Reflection(a,a.target);
             return a;
         }
-        public Vector2 Size;//scrollView的尺寸
-        public Vector2 ActualSize;//相当于Content的尺寸
+        /// <summary>
+        /// scrollView的尺寸
+        /// </summary>
+        public Vector2 Size;
+        /// <summary>
+        /// Content的尺寸,由计算后所得
+        /// </summary>
+        public Vector2 ActualSize;
+        /// <summary>
+        /// 当前滚动的位置
+        /// </summary>
         public Vector2 Position;
+        /// <summary>
+        /// 事件
+        /// </summary>
         public EventCallBack eventCall;
+        /// <summary>
+        /// 滚动事件
+        /// </summary>
         public Action<GridScroll, Vector2> Scroll;
+        /// <summary>
+        /// 滚动结束事件
+        /// </summary>
         public Action<GridScroll> ScrollEnd;
         void Calcul()
         {
@@ -258,7 +299,13 @@ namespace huqiang.UIModel
                 index++;
             }
         }
+        /// <summary>
+        /// 更新当前激活的条目
+        /// </summary>
         public Action<object, object, int> ItemUpdate;
+        /// <summary>
+        /// 回收当前隐藏的条目
+        /// </summary>
         public Action<ScrollItem> ItemRecycle;
         void UpdateItem(int index,bool force)
         {
@@ -304,12 +351,19 @@ namespace huqiang.UIModel
             y += Size.y * 0.5f;
             item.target.transform.localPosition = new Vector3(x,y,0);
         }
+        /// <summary>
+        /// 刷新到指定位置
+        /// </summary>
+        /// <param name="pos"></param>
         public void Refresh(Vector2 pos)
         {
             Position = pos;
             Calcul();
             Order();
         }
+        /// <summary>
+        /// 刷新到默认位置
+        /// </summary>
         public void Refresh()
         {
             Calcul();

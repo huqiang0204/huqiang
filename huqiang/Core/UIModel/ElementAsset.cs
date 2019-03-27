@@ -8,10 +8,11 @@ namespace huqiang.UIModel
 {
     public class ElementAsset
     {
-        public static Progress LoadAssetsAsync(string name)
+        public static Progress LoadAssetsAsync(string name,Action<Progress,AssetBundleCreateRequest> callback=null)
         {
             Progress pro = new Progress();
             pro.Play(LoadAssets(name));
+            pro.PlayOver = callback;
             return pro;
         }
         public static AssetBundleCreateRequest LoadAssets(string name)
