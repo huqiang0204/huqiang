@@ -16,7 +16,7 @@ namespace huqiang
     {
         public static void CopyToBuff(byte[] buff, byte[] src, int start, EnvelopeHead head, int FragmentSize)
         {
-            int index = (head.CurPart - 1) * FragmentSize;
+            int index = head.CurPart * FragmentSize;
             int len = (int)head.PartLen;
             for (int i = 0; i < len; i++)
             {
@@ -29,6 +29,7 @@ namespace huqiang
         EnvelopeItem[] pool = new EnvelopeItem[128];
         int remain = 0;
         byte[] buffer;
+        Int16 id = 10000;
         /// <summary>
         /// 
         /// </summary>
@@ -39,7 +40,11 @@ namespace huqiang
         }
         public byte[][] Pack(byte[] dat, byte tag)
         {
-            return EnvelopeEx.Pack(dat, tag, type);
+            var all = EnvelopeEx.Pack(dat, tag, type, id);
+            id += (Int16)all.Length;
+            if (id >= 30000)
+                id = 10000;
+            return all;
         }
         public List<EnvelopeData> Unpack(byte[] dat, int len)
         {
@@ -49,10 +54,10 @@ namespace huqiang
                 case PackType.Part:
                     return OrganizeSubVolume(EnvelopeEx.UnpackPart(dat, len, buffer, ref remain));
                 case PackType.Total:
-                    return EnvelopeEx.UnpackByte(dat, len, buffer, ref remain);
+                    return EnvelopeEx.UnpackInt(dat, len, buffer, ref remain);
                 case PackType.All:
-                    var list = EnvelopeEx.UnpackByte(dat, len, buffer, ref remain);
-                    return OrganizeSubVolume(EnvelopeEx.EnvlopeDataToPart(list), 1444 / 8 * 7);
+                    var list = EnvelopeEx.UnpackInt(dat, len, buffer, ref remain);
+                    return OrganizeSubVolume(EnvelopeEx.EnvlopeDataToPart(list), 1398);
             }
             return null;
         }
@@ -116,7 +121,7 @@ namespace huqiang
             for (int i = 0; i < 128; i++)
             {
                 if (pool[i].head.MsgID > 0)
-                    if (now - pool[i].time > 20 * 1000000)//清除超时20秒的消息
+                    if (now - pool[i].time > 20 * 10000000)//清除超时20秒的消息
                         pool[i].head.MsgID = 0;
             }
         }
@@ -125,7 +130,7 @@ namespace huqiang
             remain = 0;
             for (int i = 0; i < 128; i++)
             {
-                pool[i].head.MsgID= 0;
+                pool[i].head.MsgID = 0;
             }
         }
     }

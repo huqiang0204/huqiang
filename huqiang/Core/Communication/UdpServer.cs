@@ -51,13 +51,13 @@ namespace huqiang
         }
         public void Send(byte[] dat, IPEndPoint ip, byte tag)
         {
-             var all= EnvelopeEx.Pack(dat,tag,packType);
+             var all= EnvelopeEx.Pack(dat,tag,packType,10000);
             for (int i = 0; i < all.Length; i++)
                 soc.Send(all[i], all[i].Length, ip);
         }
         public void SendAll(byte[] dat, byte tag)
         {
-            var all = EnvelopeEx.Pack(dat, tag, packType);
+            var all = EnvelopeEx.Pack(dat, tag, packType,10000);
             SendAll(all);
         }
         void SendAll(byte[][] dat)

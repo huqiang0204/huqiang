@@ -573,7 +573,7 @@ namespace huqiang
             si += 4;
             for (int i = 0; i < 31; i++)
             {
-                if (ti + 3 >= tar.Length)
+                if (ti >= tar.Length)
                     break;
                 byte b = src[si];
                 if ((a & 1) > 0)
@@ -594,6 +594,7 @@ namespace huqiang
             {
                 part++;
                 tl += r;
+                tl -= 4;
             }
             byte[] buf = new byte[tl];
             int s0 = start;
@@ -722,16 +723,16 @@ namespace huqiang
                     buf[i] = PackingInt(buf[i], type);
             return buf;
         }
-        public static byte[][] Pack(byte[] dat, byte tag, PackType type)
+        public static byte[][] Pack(byte[] dat, byte tag, PackType type, Int16 msgID)
         {
             switch (type)
             {
                 case PackType.Part:
-                    return SubVolume(dat, tag);
+                    return SubVolume(dat, tag, msgID);
                 case PackType.Total:
-                    return new byte[][] { PackingByte(dat, tag) };
+                    return new byte[][] { PackingInt(dat, tag)};
                 case PackType.All:
-                    return PackByte(dat, tag);
+                    return PackInt(dat, tag, msgID);
             }
             return null;
         }
