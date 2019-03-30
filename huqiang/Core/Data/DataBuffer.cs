@@ -133,6 +133,14 @@ namespace huqiang.Data
         {
             return buff[index].obj;
         }
+        public object this[int index]
+        {
+            get {
+                if (index < 0|index>buff.Length)
+                    return null;
+                    return buff[index].obj;
+            }
+        }
         public void RemoveData(int index)
         {
             if (index < 1)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using huqiang.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -49,7 +50,6 @@ namespace huqiang.UIModel
     public class PrefabAsset
     {
         public string name;
-        public string[] StringAsset;
         public ModelElement[] models;
     }
     public class ModelManager
@@ -263,18 +263,19 @@ namespace huqiang.UIModel
             MemoryStream ps = new MemoryStream();
             var t = uiRoot.transform;
             ElementHead head = new ElementHead();
+            StringBuffer buffer = new StringBuffer();
             for (int i = 0; i < t.childCount; i++)
             {
                 var son = t.GetChild(i);
-                var str = ModelElement.SaveString(son.name);
+                var str = buffer.AddString(son.name);
                 head.ex0 = str;//预制体名称
                 head.ex1 = (int)ms.Position;//预制体开始位置
                 byte[] buff = head.ToBytes();
                 ps.Write(buff, 0, buff.Length);
-                SaveToFile(son.gameObject, ms);
+                SaveToFile(son.gameObject, ms,buffer);
             }
-            byte[] bs = ModelElement.GetStringAsset();
-            byte[] bl = ModelElement.StringBuffer.Count.ToBytes();
+            byte[] bs = buffer.ToBytes();
+            byte[] bl = buffer.buffer.Count.ToBytes();
             if (File.Exists(path))
                 File.Delete(path);
             var all = File.Create(path);
@@ -294,9 +295,10 @@ namespace huqiang.UIModel
         public unsafe static PrefabAsset LoadModels(byte[] buff,string name)
         {
             PrefabAsset asset = new PrefabAsset();
+            StringBuffer buffer = new StringBuffer();
             fixed (byte* bp = &buff[0])
             {
-                byte* p = ModelElement.LoadStringAsset(buff, bp);
+                byte* p = buffer.LoadStringAsset(buff, bp);
                 Int32 c = *(Int32*)p;
                 p += 4;
                 int len = c * ElementHead.Size;
@@ -310,7 +312,6 @@ namespace huqiang.UIModel
                     prefabs[i] = LoadToModel();
                 }
             }
-            asset.StringAsset = ModelElement.StringAssets;
             asset.models = prefabs;
             asset.name = name;
             for (int i = 0; i < prefabAssets.Count; i++)
@@ -340,7 +341,7 @@ namespace huqiang.UIModel
              }
             return null;
         }
-        public static void SaveToFile(GameObject game, Stream stream)
+        public static void SaveToFile(GameObject game, Stream stream,StringBuffer buffer)
         {
             var com = game.GetComponents<Component>();
             int typ = GetTypeIndex(com);
@@ -349,6 +350,7 @@ namespace huqiang.UIModel
                 if (typ == models[i].type)
                 {
                     var mod = models[i].create();
+                    mod.buffer = buffer;
                     mod.Save(game);
                     mod.transAttribute.type = typ;
                     var t = game.transform;
@@ -364,7 +366,7 @@ namespace huqiang.UIModel
                     for (int j = 0; j < c; j++)
                     {
                         var g = t.GetChild(j).gameObject;
-                        SaveToFile(g, stream);
+                        SaveToFile(g, stream,buffer);
                     }
                 }
             }
@@ -479,18 +481,6 @@ namespace huqiang.UIModel
                     m.SetValue(o, t.GetComponent(m.FieldType));
             }
         }
-        public static void SetCurrentAsset(string asset)
-        {
-            for (int i = 0; i < prefabAssets.Count; i++)
-            {
-                if (asset == prefabAssets[i].name)
-                {
-                    ModelElement.StringAssets = prefabAssets[i].StringAsset;
-                    prefabs = prefabAssets[i].models;
-                    break;
-                }
-            }
-        }
         public static ModelElement FindModel(string str)
         {
             if (prefabs == null)
@@ -506,7 +496,7 @@ namespace huqiang.UIModel
         public static void CopyLayout(Transform transform, ModelElement model, bool isSon = false)
         {
             if (!isSon)
-                ModelElement.Load(transform.gameObject,ref model.transAttribute);
+                ModelElement.Load(transform.gameObject, model);
             for (int i = 0; i < transform.childCount; i++)
             {
                 var t = transform.GetChild(i);
@@ -514,7 +504,7 @@ namespace huqiang.UIModel
                 var m = model.FindChild(n);
                 if (m != null)
                 {
-                    ModelElement.Load(t.gameObject, ref m.transAttribute);
+                    ModelElement.Load(t.gameObject, model);
                     CopyLayout(t, m);
                 }
             }

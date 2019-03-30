@@ -106,6 +106,7 @@
     <Compile Include="Core\Data\MeshData.cs" />
     <Compile Include="Core\Data\RecordManager.cs" />
     <Compile Include="Core\Data\ScalableData.cs" />
+    <Compile Include="Core\Data\StringBuffer.cs" />
     <Compile Include="Core\Event\CheckEvent.cs" />
     <Compile Include="Core\Event\EmojiInput.cs" />
     <Compile Include="Core\Event\EventCallBack.cs" />

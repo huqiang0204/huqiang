@@ -12,14 +12,15 @@ namespace huqiang.UIModel
         public Int32 shader;
         public Int32 assetName;
         public Int32 textureName;
-        public static int Size = 48;////sizeof(RawImageAttribute);
+        public static int Size = sizeof(RawImageAttribute);
+        public static int ElementSize = Size / 4;
         public static void LoadFromBuff(ref RawImageAttribute raw, void* p)
         {
             fixed (Rect* trans = &raw.uvRect)
             {
                 Int32* a =(Int32*) trans;
                 Int32* b = (Int32*)p;
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < ElementSize; i++)
                 {
                     *a = *b;
                     a++;
@@ -39,24 +40,12 @@ namespace huqiang.UIModel
         string smat;
         public unsafe override byte* LoadFromBuff(byte* point)
         {
-            //transAttribute = *(ElementAttribute*)point;
-            ElementAttribute.LoadFromBuff(ref transAttribute,point);
-            name = StringAssets[transAttribute.name];
-            tag = StringAssets[transAttribute.tag];
-            point += ElementAttribute.Size;
-            //raw = *(RawImageAttribute*)point;
+            point = base.LoadFromBuff(point);
             RawImageAttribute.LoadFromBuff(ref raw, point);
-            if (raw.material > -1)
-            {
-                smat = StringAssets[raw.material];
-                shader = StringAssets[raw.shader];
-            }
-            if (raw.textureName > -1)
-            {
-                if (raw.assetName > -1)
-                    assetName = StringAssets[raw.assetName];
-                textureName = StringAssets[raw.textureName];
-            }
+            smat = buffer[raw.material];
+            shader = buffer[raw.shader];
+            assetName = buffer[raw.assetName];
+            textureName = buffer[raw.textureName];
             return point + RawImageAttribute.Size;
         }
         public unsafe override byte[] ToBytes()
@@ -72,14 +61,19 @@ namespace huqiang.UIModel
             }
             return buff;
         }
-        static void Load(GameObject tar, ref RawImageAttribute att)
+        static void Load(GameObject tar, RawImageElement raw)
         {
             var a = tar.GetComponent<RawImage>();
-            a.uvRect = att.uvRect;
-            a.color = att.color;
+            a.uvRect = raw.raw.uvRect;
+            a.color = raw.raw.color;
             a.raycastTarget = false;
+            if (raw.smat != null)
+                if (raw.smat != "Default UI Material")
+                    a.material = new Material(Shader.Find(raw.shader));
+            if (raw.textureName != null)
+                a.texture = ElementAsset.FindTexture(raw.assetName,raw. textureName);
         }
-        static void Save(GameObject tar, ref RawImageAttribute att)
+        static void Save(GameObject tar, RawImageElement raw)
         {
             var b = tar.GetComponent<RawImage>();
             if (b != null)
@@ -87,34 +81,26 @@ namespace huqiang.UIModel
                 if (b.texture != null)
                 {
                     string tn = b.texture.name;
-                    att.textureName = SaveString(tn);
+                    raw.raw.textureName = raw.buffer.AddString(tn);
                     var an = ElementAsset.TxtureFormAsset(tn);
-                    if (an != null)
-                        att.assetName = SaveString(an);
+                    raw.raw.assetName = raw.buffer.AddString(an);
                 }
-                else att.textureName = -1;
                 var mat = b.material;
-                att.material = SaveString(mat.name);
-                att.shader = SaveString(mat.shader.name);
-                att.color = b.color;
-                att.uvRect = b.uvRect;
+                raw.raw.material = raw.buffer.AddString(mat.name);
+                raw.raw.shader = raw.buffer.AddString(mat.shader.name);
+                raw.raw.color = b.color;
+                raw.raw.uvRect = b.uvRect;
             }
         }
         public override void Load(GameObject tar)
         {
             base.Load(tar);
-            Load(tar, ref this.raw);
-            var img = tar.GetComponent<RawImage>();
-            if (smat != null)
-                if (smat != "Default UI Material")
-                    img.material = new Material(Shader.Find(shader));
-            if (textureName != null)
-                img.texture = ElementAsset.FindTexture(assetName, textureName);
+            Load(tar, this);
         }
         public override void Save(GameObject tar)
         {
             base.Save(tar);
-            Save(tar, ref this.raw);
+            Save(tar, this);
         }
         public void SetTexture(Texture t2d)
         {

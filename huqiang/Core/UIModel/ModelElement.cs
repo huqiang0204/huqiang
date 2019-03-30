@@ -1,4 +1,5 @@
-﻿using System;
+﻿using huqiang.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,14 +34,15 @@ namespace huqiang.UIModel
         public Margin margin;
         public Vector2 DesignSize;
         public Int32 type;
-        public static int Size = 164;//sizeof(ElementAttribute);
+        public static int Size = sizeof(ElementAttribute);
+        public static int ElementSize = Size / 4;
         public static void LoadFromBuff(ref ElementAttribute ele, void* p)
         {
             fixed (Int32* trans = &ele.childCount)
             {
                 Int32* a = trans;
                 Int32* b = (Int32*)p;
-                for (int i = 0; i < 41; i++)
+                for (int i = 0; i <ElementSize; i++)
                 {
                     *a = *b;
                     a++;
@@ -51,82 +53,34 @@ namespace huqiang.UIModel
     }
     public class ModelElement
     {
-        public static List<string> StringBuffer;
-        public static byte[] GetStringAsset()
-        {
-            if (StringBuffer == null)
-                return null;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                for (int i = 0; i < StringBuffer.Count; i++)
-                {
-                    var str = StringBuffer[i];
-                    var buff = Encoding.UTF8.GetBytes(str);
-                    var lb = buff.Length.ToBytes();
-                    ms.Write(lb, 0, 4);
-                    ms.Write(buff, 0, buff.Length);
-                }
-                return ms.ToArray();
-            }
-        }
-        public unsafe static byte* LoadStringAsset(byte[] dat ,byte* bp)
-        {
-            byte* p = bp;
-            int len = *(int*)p;
-            StringAssets = new string[len];
-            p += 4;
-            for(int i=0;i<len;i++)
-            {
-                int c = *(int*)p;
-                p += 4;
-                int offset = (int)((byte*)p - bp);
-                StringAssets[i] = Encoding.UTF8.GetString(dat,offset,c);
-                p += c;
-            }
-            return p;
-        }
-        public static int SaveString(string str)
-        {
-            if (StringBuffer == null)
-                StringBuffer = new List<string>();
-            if (str == null)
-                return 0;
-            int index = StringBuffer.IndexOf(str);
-            if (index < 0)
-            {
-                index = StringBuffer.Count;
-                StringBuffer.Add(str);
-            }
-            return index;
-        }
-        public static string[] StringAssets;
         public string name;
         public string tag;
-        public static List<AssetBundle> bundles;
+        public StringBuffer buffer;
         public ElementAttribute transAttribute;
 
         public unsafe virtual byte* LoadFromBuff(byte* point)
         {
-            //transAttribute = *(ElementAttribute*)point;
+            transAttribute = *(ElementAttribute*)point;
             ElementAttribute.LoadFromBuff(ref transAttribute,point);
-            name = StringAssets[transAttribute.name];
-            tag = StringAssets[transAttribute.tag];
+            name = buffer[transAttribute.name];
+            tag = buffer[transAttribute.tag];
             return point + ElementAttribute.Size;
         }
         public unsafe virtual byte[] ToBytes()
         {
-            int size = ElementAttribute.Size;
+            int size = ElementAttribute.Size*4;
             byte[] buff = new byte[size];
             fixed (byte* bp = &buff[0])
                 *(ElementAttribute*)bp = transAttribute;
             return buff;
         }
 
-        public static void Load(GameObject tar, ref ElementAttribute att)
+        public static void Load(GameObject tar, ModelElement  model)
         {
             var r = tar.transform;
             if (r is RectTransform)
             {
+                var att = model.transAttribute;
                 var t = r as RectTransform;
                 t.pivot = att.pivot;
                 t.anchorMax = att.anchorMax;
@@ -140,12 +94,15 @@ namespace huqiang.UIModel
                 t.localPosition = att.localPosition;
                 t.sizeDelta = att.sizeDelta;
             }
+            tar.name = model.name;
+            tar.tag = model.tag;
         }
-        public static void Save(GameObject tar, ref ElementAttribute att)
+        public static void Save(GameObject tar, ModelElement model)
         {
             var r = tar.transform;
             if (r is RectTransform)
             {
+                var att = model.transAttribute;
                 var s = r as RectTransform;
                 att.localEulerAngles = s.localEulerAngles;
                 att.localPosition = s.localPosition;
@@ -170,21 +127,22 @@ namespace huqiang.UIModel
                     att.DesignSize = ss.DesignSize;
                 }
                 else att.SizeScale = false;
+                model.name = tar.name;
+                model.tag = tar.tag;
+                att.name =model.buffer.AddString(model.name);
+                att.tag = model.buffer.AddString(model.tag);
             }
-            att.name = SaveString(tar.name);
-            att.tag = SaveString(tar.tag);
         }
         public List<ModelElement> Child =new List<ModelElement>();
         public GameObject Main;
         public virtual void Load(GameObject tar)
         {
-            Load(tar, ref this.transAttribute);
-            tar.name = name;
+            Load(tar, this);
             Main = tar;
         }
         public virtual void Save(GameObject tar)
         {
-            Save(tar, ref transAttribute);
+            Save(tar, this);
         }
 
         public void AddSizeScale()

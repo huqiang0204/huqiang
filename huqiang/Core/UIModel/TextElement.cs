@@ -24,14 +24,15 @@ namespace huqiang.UIModel
         public Int32 text;
         public Int32 material;
         public Int32 shader;
-        public static int Size = 76;//sizeof(TextAttribute);
+        public static int Size = sizeof(TextAttribute);
+        public static int ElementSize = Size / 4;
         public static void LoadFromBuff(ref TextAttribute txt, void* p)
         {
             fixed (Boolean* trans = &txt.alignByGeometry)
             {
                 Int32* a =(Int32*) trans;
                 Int32* b = (Int32*)p;
-                for (int i = 0; i < 19; i++)
+                for (int i = 0; i < ElementSize; i++)
                 {
                     *a = *b;
                     a++;
@@ -65,22 +66,14 @@ namespace huqiang.UIModel
         string shader;
         public unsafe override byte* LoadFromBuff(byte* point)
         {
-            //transAttribute = *(ElementAttribute*)point;
-            ElementAttribute.LoadFromBuff(ref transAttribute,point);
-            name = StringAssets[transAttribute.name];
-            tag = StringAssets[transAttribute.tag];
-            point += ElementAttribute.Size;
-            //textAttribute = *(TextAttribute*)point;
+            point = base.LoadFromBuff(point);
+            name = buffer[transAttribute.name] ;
+            tag = buffer[transAttribute.tag];
             TextAttribute.LoadFromBuff(ref textAttribute,point);
-            if (textAttribute.material > -1)
-            {
-                smat = StringAssets[textAttribute.material];
-                shader = StringAssets[textAttribute.shader];
-            }
-            if (textAttribute.font > -1)
-                fontName = StringAssets[textAttribute.font];
-            if (textAttribute.text > -1)
-                text = StringAssets[textAttribute.text];
+            smat = buffer[textAttribute.material];
+            shader = buffer[textAttribute.shader];
+            fontName = buffer[textAttribute.font];
+            text = buffer[textAttribute.text];
             return point + TextAttribute.Size;
         }
         public unsafe override byte[] ToBytes()
@@ -114,30 +107,29 @@ namespace huqiang.UIModel
             a.raycastTarget = false;
             a.enabled = true;
         }
-        static void Save(GameObject tar, ref TextAttribute att)
+        static void Save(GameObject tar, TextElement text)
         {
             var txt = tar.GetComponent<Text>();
             if (txt != null)
             {
-                att.alignByGeometry = txt.alignByGeometry;
-                att.alignment = txt.alignment;
-                att.fontSize = txt.fontSize;
-                att.fontStyle = txt.fontStyle;
-                att.horizontalOverflow = txt.horizontalOverflow;
-                att.lineSpacing = txt.lineSpacing;
-                att.resizeTextForBestFit = txt.resizeTextForBestFit;
-                att.resizeTextMaxSize = txt.resizeTextMaxSize;
-                att.resizeTextMinSize = txt.resizeTextMinSize;
-                att.supportRichText = txt.supportRichText;
-                att.verticalOverflow = txt.verticalOverflow;
-                att.color = txt.color;
-                att.text = SaveString(txt.text);
+                text.textAttribute.alignByGeometry = txt.alignByGeometry;
+                text.textAttribute.alignment = txt.alignment;
+                text.textAttribute.fontSize = txt.fontSize;
+                text.textAttribute.fontStyle = txt.fontStyle;
+                text.textAttribute.horizontalOverflow = txt.horizontalOverflow;
+                text.textAttribute.lineSpacing = txt.lineSpacing;
+                text.textAttribute.resizeTextForBestFit = txt.resizeTextForBestFit;
+                text.textAttribute.resizeTextMaxSize = txt.resizeTextMaxSize;
+                text.textAttribute.resizeTextMinSize = txt.resizeTextMinSize;
+                text.textAttribute.supportRichText = txt.supportRichText;
+                text.textAttribute.verticalOverflow = txt.verticalOverflow;
+                text.textAttribute.color = txt.color;
+                text.textAttribute.text = text.buffer.AddString(txt.text);
                 var mat = txt.material;
-                att.material = SaveString(mat.name);
-                att.shader = SaveString(mat.shader.name);
+                text.textAttribute.material = text.buffer.AddString(mat.name);
+                text.textAttribute.shader = text.buffer.AddString(mat.shader.name);
                 if (txt.font != null)
-                    att.font = SaveString(txt.font.name);
-                else att.font = -1;
+                    text.textAttribute.font = text.buffer.AddString(txt.font.name);
             }
         }
         public override void Load(GameObject tar)
@@ -154,7 +146,7 @@ namespace huqiang.UIModel
         public override void Save(GameObject tar)
         {
             base.Save(tar);
-            Save(tar, ref this.textAttribute);
+            Save(tar, this);
         }
     }
     public class EmojiTextElement : TextElement
