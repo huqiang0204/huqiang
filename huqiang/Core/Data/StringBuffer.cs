@@ -40,7 +40,7 @@ namespace huqiang.Data
         {
             byte* p = bp;
             int len = *(int*)p;
-            var StringAssets = new string[len];
+            StringAssets = new string[len];
             p += 4;
             for (int i = 0; i < len; i++)
             {

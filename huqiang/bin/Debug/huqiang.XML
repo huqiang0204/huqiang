@@ -39,7 +39,7 @@
             此此消息总计长度
             </summary>
         </member>
-        <member name="M:huqiang.EnvelopeEx.UnpackPart(System.Byte[],System.Int32,System.Byte[],System.Int32@,System.Int32)">
+        <member name="M:huqiang.Envelope.UnpackPart(System.Byte[],System.Int32,System.Byte[],System.Int32@,System.Int32)">
             <summary>
             
             </summary>
@@ -50,12 +50,9 @@
             <param name="fs"></param>
             <returns></returns>
         </member>
-        <member name="M:huqiang.EnvelopeEx.SubVolume(System.Byte[],System.Byte,System.Int16,System.Int16)">
+        <member name="M:huqiang.Envelope.SubVolume(System.Byte[],System.Byte,System.Int16,System.Int16)">
             <summary>
-            标头4字节，总长度4字节, 当前分卷2字节，总分卷2字节，当前分卷长度4字节，总计16字节
-            </summary>
-            <summary>
-            每个数据包大小1460字节
+            对数据进行分卷, 标头4字节，总长度4字节, 当前分卷2字节，总分卷2字节，当前分卷长度4字节，总计16字节
             </summary>
             <param name="buff">需要打包的数据</param>
             <param name="type">数据类型</param>
@@ -63,23 +60,7 @@
             <param name="fs">每个分卷大小</param>
             <returns></returns>
         </member>
-        <member name="M:huqiang.EnvelopeEx.PackingByte(System.Byte[],System.Byte)">
-            <summary>
-            包头=255，包尾=254
-            </summary>
-            <param name="dat"></param>
-            <param name="type">数据类型</param>
-            <returns></returns>
-        </member>
-        <member name="M:huqiang.EnvelopeEx.PackingShort(System.Byte[],System.Byte)">
-            <summary>
-            包头=255,255，包尾=255,254
-            </summary>
-            <param name="dat"></param>
-            <param name="type">数据类型</param>
-            <returns></returns>
-        </member>
-        <member name="M:huqiang.EnvelopeEx.PackingInt(System.Byte[],System.Byte)">
+        <member name="M:huqiang.Envelope.PackingInt(System.Byte[],System.Byte)">
             <summary>
             包头=255,255,255,255,包尾=255,255,255,254
             </summary>
@@ -87,9 +68,18 @@
             <param name="type">数据类型</param>
             <returns></returns>
         </member>
-        <member name="M:huqiang.EnvelopeEx.PackByte(System.Byte[],System.Byte,System.Int16)">
+        <member name="M:huqiang.Envelope.EnvlopeDataToPart(System.Collections.Generic.List{huqiang.EnvelopeData})">
             <summary>
-            当数据量较大，使用分卷
+            读取数据的包头,将数据解析成分段数据
+            </summary>
+            <param name="datas"></param>
+            <returns></returns>
+        </member>
+        <member name="M:huqiang.Envelope.PackAll(System.Byte[],System.Byte,System.Int16,System.Int16)">
+            <summary>
+            当数据量较大,使用分卷
+            Tcp每个数据包大小1460字节,Udp每个数据包大小1472字节
+            Tcp Part->1460-16=1444,All->1460-9-16=1435.Udp All->1472-9-16=1447
             </summary>
             <param name="dat"></param>
             <param name="type"></param>
@@ -129,11 +119,21 @@
             5秒
             </summary>
         </member>
+        <member name="F:huqiang.TcpEnvelope.sss">
+            <summary>
+            Solution Slices Segment
+            </summary>
+        </member>
         <member name="M:huqiang.TcpEnvelope.#ctor(System.Int32)">
             <summary>
             
             </summary>
             <param name="buffLen">256kb</param>
+        </member>
+        <member name="T:huqiang.TcpLinker">
+            <summary>
+            客户端连接
+            </summary>
         </member>
         <member name="M:huqiang.TcpSocket.SetDispatchMethod(System.Action{System.Byte[],System.Byte,System.Object},System.Boolean)">
             <summary>
@@ -158,6 +158,42 @@
             向服务器发送消息
             </summary>
             <param name="data"></param>
+        </member>
+        <member name="F:huqiang.TcpServer.Links">
+            <summary>
+            所有玩家的连接
+            </summary>
+        </member>
+        <member name="F:huqiang.TcpServer.CreateModle">
+            <summary>
+            创建一个新的默认连接 参数socket
+            </summary>
+        </member>
+        <member name="F:huqiang.TcpServer.DispatchMessage">
+            <summary>
+            默认的派发消息
+            </summary>
+        </member>
+        <member name="F:huqiang.TcpServer.Instance">
+            <summary>
+            单例服务器实例
+            </summary>
+        </member>
+        <member name="M:huqiang.TcpServer.StatisticsTcp">
+            <summary>
+            统计tcp连接
+            </summary>
+        </member>
+        <member name="M:huqiang.TcpServer.Heartbeat">
+            <summary>
+            给用户发送心跳
+            </summary>
+        </member>
+        <member name="M:huqiang.TcpServer.Broadcasting(System.Action{huqiang.TcpLinker})">
+            <summary>
+            广播所有在线用户
+            </summary>
+            <param name="action"></param>
         </member>
         <member name="M:huqiang.UdpServer.#ctor(System.Int32,System.Int32,System.Boolean,huqiang.PackType)">
             <summary>

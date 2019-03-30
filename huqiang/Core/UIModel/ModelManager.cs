@@ -309,7 +309,7 @@ namespace huqiang.UIModel
                     ElementHead head = *(ElementHead*)p;
                     p += ElementHead.Size;
                     address = head.ex1 + os;
-                    prefabs[i] = LoadToModel();
+                    prefabs[i] = LoadToModel(buffer);
                 }
             }
             asset.models = prefabs;
@@ -321,7 +321,7 @@ namespace huqiang.UIModel
             return asset;
         }
         unsafe static byte* address;
-        unsafe static ModelElement LoadToModel()
+        unsafe static ModelElement LoadToModel(StringBuffer buffer)
         {
             ElementHead head = *(ElementHead*)address;
             address += ElementHead.Size;
@@ -330,11 +330,12 @@ namespace huqiang.UIModel
                 if (head.ex0 == models[i].type)
                 {
                     var mod = models[i].create();
+                    mod.buffer = buffer;
                     address = mod.LoadFromBuff(address);
                     if(head.ex1>0)
                     for(int c=0;c<head.ex1;c++)
                     {
-                        mod.Child.Add(LoadToModel());
+                        mod.Child.Add(LoadToModel(buffer));
                     }
                     return mod;
                 }

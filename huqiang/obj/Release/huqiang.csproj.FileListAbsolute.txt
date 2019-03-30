@@ -28,4 +28,3 @@ F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.csproj.CoreCompileInputs.cache
 F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.csproj.CopyComplete
 F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.dll
 F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.pdb
-F:\SelfWork\huqiang\huqiang\obj\Release\huqiang.csprojAssemblyReference.cache

@@ -21,10 +21,10 @@ namespace huqiang
         public bool isConnection { get { if (client == null) return false; return client.Connected; } }
         IPEndPoint iep;
         Queue<SocData> queue;
-        public TcpSocket(int bs = 262144, PackType type = PackType.All, int es = 262144)
+        public TcpSocket(int bs = 262144,PackType type = PackType.All,int es = 262144)
         {
             buffer = new byte[bs];
-            if (type != PackType.None)
+            if(type!=PackType.None)
             {
                 Packaging = true;
                 envelope = new TcpEnvelope(es);
@@ -33,7 +33,7 @@ namespace huqiang
             queue = new Queue<SocData>();
         }
         byte[] buffer;
-        bool reConnect = false;
+        bool reConnect=false;
         void Run()
         {
             while (true)
@@ -53,7 +53,7 @@ namespace huqiang
                     if (client.Connected)
                     {
                         Receive();
-                        if (redic)
+                        if(redic)
                         {
                             if (client.Connected)
                                 client.Shutdown(SocketShutdown.Both);
@@ -82,10 +82,11 @@ namespace huqiang
         {
             try
             {
-                envelope.Clear();
+                if (Packaging)
+                    envelope.Clear();
                 redic = false;
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                if (localBind != null)
+                if(localBind!=null)
                 {
                     client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                     client.Bind(localBind);
@@ -113,15 +114,15 @@ namespace huqiang
             try
             {
                 int len = client.Receive(buffer);
-                if (Packaging)
+                if(Packaging)
                 {
                     var dat = envelope.Unpack(buffer, len);
-                    if (dat != null)
+                    if(dat!=null)
                     {
                         for (int i = 0; i < dat.Count; i++)
                         {
                             var item = dat[i];
-                            EnvelopeCallback(item.data, item.type);
+                            EnvelopeCallback(item.data,item.type);
                         }
                     }
                 }
@@ -130,12 +131,11 @@ namespace huqiang
                     byte[] tmp = new byte[len];
                     for (int i = 0; i < len; i++)
                         tmp[i] = buffer[i];
-                    if (auto)
+                    if(auto)
                     {
                         if (a_Dispatch != null)
-                            a_Dispatch(tmp, 0, null);
-                    }
-                    else
+                            a_Dispatch(tmp,0,null);
+                    }else
                     {
                         SocData soc = new SocData();
                         soc.data = tmp;
@@ -144,25 +144,21 @@ namespace huqiang
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                //if (Packaging)
-                //    envelope.Clear();
                 //if (ConnectFaild != null)
                 //    ConnectFaild(ex.StackTrace);
             }
         }
-        void EnvelopeCallback(byte[] data, byte tag)
+        void EnvelopeCallback(byte[] data,byte tag)
         {
             object obj = null;
-            var str = System.Text.Encoding.UTF8.GetString(data);
-            if (SelfAnalytical != null)
+            if(SelfAnalytical!=null)
             {
                 try
                 {
-                    obj = SelfAnalytical(data, tag);
-                }
-                catch (Exception ex)
+                   obj = SelfAnalytical(data, tag);
+                }catch(Exception ex)
                 {
                 }
             }
@@ -171,11 +167,10 @@ namespace huqiang
                 if (a_Dispatch != null)
                     a_Dispatch(data, tag, null);
             }
-            else
-            {
+            else {
                 SocData soc = new SocData();
                 soc.data = data;
-                soc.tag = tag;
+                soc.tag =tag;
                 soc.obj = obj;
                 lock (queue)
                     queue.Enqueue(soc);
@@ -189,17 +184,23 @@ namespace huqiang
             }
         }
         bool auto = true;
-        Action<byte[], byte, object> a_Dispatch;
+        Action<byte[], byte ,object> a_Dispatch;
         /// <summary>
         /// 设置消息派发函数
         /// </summary>
         /// <param name="DispatchMessage"></param>
         /// <param name="autodispatch">true由socket本身的线程进行派发，false为手动派发，请使用update函数</param>
         /// <param name="buff_size">手动派发时，缓存消息的队列大小,默认最小为32</param>
-        public void SetDispatchMethod(Action<byte[], byte, object> DispatchMessage, bool autodispatch = true)
+        public void SetDispatchMethod(Action<byte[], byte ,object> DispatchMessage, bool autodispatch = true)
         {
             a_Dispatch = DispatchMessage;
             auto = autodispatch;
+            //if (!auto)
+            //{
+            //    if (buff_size < 16)
+            //        buff_size = 16;
+            //    //drm = new DataReaderManage(buff_size);
+            //}
         }
         IPEndPoint localBind;
         public void ConnectServer(IPEndPoint remote, IPEndPoint bind = null)
@@ -226,7 +227,7 @@ namespace huqiang
         /// </summary>
         public void Dispatch()
         {
-            if (queue != null)
+            if(queue!=null)
             {
                 int c = queue.Count;
                 SocData soc;
@@ -276,7 +277,7 @@ namespace huqiang
         bool redic;
         public void Redirect(IPEndPoint iPEnd)
         {
-            if (iep != null)
+            if(iep!=null)
             {
                 if (iep.Address.Equals(iPEnd.Address))
                     if (iep.Port == iPEnd.Port)

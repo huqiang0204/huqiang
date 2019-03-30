@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using UnityEngine;
 
 namespace huqiang
 {
@@ -20,6 +19,7 @@ namespace huqiang
         Queue<SocData> queue;
         public UdpSocket(int port, IPEndPoint remote, bool subThread = true, PackType type = PackType.Total, int es = 262144)
         {
+           
             endPoint = remote;
             //Links = new Linker[thread * 1024];
             soc = new UdpClient(port);
@@ -72,8 +72,6 @@ namespace huqiang
         }
         void EnvelopeCallback(byte[] data,byte tag)
         {
-            if (SubDispatch != null)
-                SubDispatch(data, tag, endPoint);
             if (auto)
             {
                 if (MainDispatch != null)
@@ -89,7 +87,6 @@ namespace huqiang
                     queue.Enqueue(soc);
             }
         }
-        public Action<byte[], byte, IPEndPoint> SubDispatch;
         public Action<byte[], byte, IPEndPoint> MainDispatch;
         public void Dispatch()
         {

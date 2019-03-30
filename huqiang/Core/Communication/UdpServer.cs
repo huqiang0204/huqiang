@@ -13,7 +13,7 @@ namespace huqiang
         public Int32 port;
         public string uniId;
         public IPEndPoint endpPoint;
-        public TcpEnvelope envelope;
+        public UdpEnvelope envelope;
         public long time;
     }
     public class UdpServer
@@ -26,6 +26,7 @@ namespace huqiang
         bool running;
         bool auto;
         PackType packType = PackType.All;
+        Int16 id = 10000;
         /// <summary>
         /// UdpServer构造
         /// </summary>
@@ -51,14 +52,57 @@ namespace huqiang
         }
         public void Send(byte[] dat, IPEndPoint ip, byte tag)
         {
-             var all= EnvelopeEx.Pack(dat,tag,packType,10000);
-            for (int i = 0; i < all.Length; i++)
-                soc.Send(all[i], all[i].Length, ip);
+            switch (packType)
+            {
+                case PackType.Part:
+                    var all = Envelope.SubVolume(dat, tag, id, 1472);
+                    for (int i = 0; i < all.Length; i++)
+                        soc.Send(all[i], all[i].Length, ip);
+                    id++;
+                    if (id > 30000)
+                        id = 10000;
+                    break;
+                case PackType.Total:
+                    dat = Envelope.PackingInt(dat, tag);
+                    soc.Send(dat, dat.Length, ip);
+                    break;
+                case PackType.All:
+                    all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
+                    for (int i = 0; i < all.Length; i++)
+                        soc.Send(all[i], all[i].Length, ip);
+                    id++;
+                    if (id > 30000)
+                        id = 10000;
+                    break;
+                default:
+                    soc.Send(dat, dat.Length, ip);
+                    break;
+            }
         }
         public void SendAll(byte[] dat, byte tag)
         {
-            var all = EnvelopeEx.Pack(dat, tag, packType,10000);
-            SendAll(all);
+            switch (packType)
+            {
+                case PackType.Part:
+                    SendAll(Envelope.SubVolume(dat, tag, id, 1472));
+                    id++;
+                    if (id > 30000)
+                        id = 10000;
+                    break;
+                case PackType.Total:
+                    SendAll(Envelope.PackingInt(dat, tag));
+                    break;
+                case PackType.All:
+                    var all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
+                    SendAll(all);
+                    id++;
+                    if (id > 30000)
+                        id = 10000;
+                    break;
+                default:
+                    SendAll(dat);
+                    break;
+            }
         }
         void SendAll(byte[][] dat)
         {
@@ -176,7 +220,7 @@ namespace huqiang
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
-            link.envelope = new TcpEnvelope();
+            link.envelope = new UdpEnvelope();
             link.envelope.type = packType;
             link.time = DateTime.Now.Ticks;
             links.Add(link);
@@ -196,7 +240,7 @@ namespace huqiang
                     long a = time - links[i].time;
                     if (a < 0)
                         a = -a;
-                    if (a > 10000000)
+                    if (a > 100000000)
                         links.RemoveAt(i);
                 }
             }
