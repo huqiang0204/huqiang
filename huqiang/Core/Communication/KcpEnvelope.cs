@@ -4,7 +4,7 @@ using System.Text;
 
 namespace huqiang
 {
-    public class KcpEnvelope:TcpEnvelope
+    public class KcpEnvelope : TcpEnvelope
     {
         class DataItem
         {
@@ -25,15 +25,15 @@ namespace huqiang
         }
         public override byte[][] Pack(byte[] dat, byte type)
         {
-            var tmp = Envelope.PackAll(dat, type,id,Fragment);
+            var tmp = Envelope.PackAll(dat, type, id, Fragment);
             long now = DateTime.Now.Ticks;
-            for(int i=0;i<tmp.Length;i++)
+            for (int i = 0; i < tmp.Length; i++)
             {
                 DataItem item = new DataItem();
                 item.id = id;
                 id++;
-                if (id> 10000)
-                    id = 0;
+                if (id >= MaxID)
+                    id = MinID;
                 item.dat = tmp[i];
                 item.time = now;
                 sendBuffer.Add(item);
@@ -46,7 +46,7 @@ namespace huqiang
             var list = Envelope.UnpackInt(dat, len, buffer, ref remain);
             var dats = Envelope.EnvlopeDataToPart(list);
             int c = dats.Count - 1;
-            for(;c>=0;c--)
+            for (; c >= 0; c--)
             {
                 var item = dats[c];
                 Int16 tag = item.head.Type;
@@ -74,13 +74,13 @@ namespace huqiang
         }
         void Success(Int16 _id)
         {
-            lock(sendBuffer)
-            for(int i=0;i<sendBuffer.Count;i++)
-                if(sendBuffer[i].id==_id)
-                {
-                    sendBuffer.RemoveAt(i);
-                    break;
-                }
+            lock (sendBuffer)
+                for (int i = 0; i < sendBuffer.Count; i++)
+                    if (sendBuffer[i].id == _id)
+                    {
+                        sendBuffer.RemoveAt(i);
+                        break;
+                    }
         }
         /// <summary>
         /// 获取超时数据
@@ -106,7 +106,7 @@ namespace huqiang
         }
         void ReciveOk(Int16 _id)
         {
-            var tmp = Envelope.PackAll(new byte[2], 128,_id,Fragment)[0];
+            var tmp = Envelope.PackAll(new byte[2], 128, _id, Fragment)[0];
             ValidateData.Add(tmp);
         }
     }

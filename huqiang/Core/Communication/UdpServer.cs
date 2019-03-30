@@ -27,6 +27,8 @@ namespace huqiang
         bool auto;
         PackType packType = PackType.All;
         Int16 id = 10000;
+        static Int16 MinID = 11000;
+        static Int16 MaxID = 21000;
         /// <summary>
         /// UdpServer构造
         /// </summary>
@@ -58,9 +60,9 @@ namespace huqiang
                     var all = Envelope.SubVolume(dat, tag, id, 1472);
                     for (int i = 0; i < all.Length; i++)
                         soc.Send(all[i], all[i].Length, ip);
-                    id++;
-                    if (id > 30000)
-                        id = 10000;
+                    id += (Int16)all.Length;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 case PackType.Total:
                     dat = Envelope.PackingInt(dat, tag);
@@ -70,9 +72,9 @@ namespace huqiang
                     all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
                     for (int i = 0; i < all.Length; i++)
                         soc.Send(all[i], all[i].Length, ip);
-                    id++;
-                    if (id > 30000)
-                        id = 10000;
+                    id += (Int16)all.Length;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 default:
                     soc.Send(dat, dat.Length, ip);
@@ -84,20 +86,21 @@ namespace huqiang
             switch (packType)
             {
                 case PackType.Part:
-                    SendAll(Envelope.SubVolume(dat, tag, id, 1472));
+                    var all = Envelope.SubVolume(dat, tag, id, 1472);
+                    SendAll(all);
                     id++;
-                    if (id > 30000)
-                        id = 10000;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 case PackType.Total:
                     SendAll(Envelope.PackingInt(dat, tag));
                     break;
                 case PackType.All:
-                    var all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
+                    all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
                     SendAll(all);
                     id++;
-                    if (id > 30000)
-                        id = 10000;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 default:
                     SendAll(dat);

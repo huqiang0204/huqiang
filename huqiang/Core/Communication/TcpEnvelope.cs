@@ -14,9 +14,11 @@ namespace huqiang
     }
     public class TcpEnvelope
     {
+        public static Int16 MinID = 22000;
+        public static Int16 MaxID = 32000;
         public static void CopyToBuff(byte[] buff, byte[] src, int start, EnvelopeHead head, int FragmentSize)
         {
-            int index = head.CurPart* FragmentSize;
+            int index = head.CurPart * FragmentSize;
             int len = (int)head.PartLen;
             int all = buff.Length;
             for (int i = 0; i < len; i++)
@@ -32,7 +34,7 @@ namespace huqiang
         protected EnvelopeItem[] pool = new EnvelopeItem[128];
         protected int remain = 0;
         protected byte[] buffer;
-        protected Int16 id = 10000;
+        protected Int16 id = 22000;
         protected Int16 Fragment = 1460;
         /// <summary>
         /// Solution Slices Segment
@@ -48,10 +50,10 @@ namespace huqiang
         }
         public virtual byte[][] Pack(byte[] dat, byte tag)
         {
-            var all = Envelope.Pack(dat, tag, type, id,Fragment);
+            var all = Envelope.Pack(dat, tag, type, id, Fragment);
             id += (Int16)all.Length;
-            if (id >= 30000)
-                id = 10000;
+            if (id >= MaxID)
+                id = MinID;
             return all;
         }
         public virtual List<EnvelopeData> Unpack(byte[] dat, int len)
@@ -60,7 +62,7 @@ namespace huqiang
             switch (type)
             {
                 case PackType.Part:
-                    return OrganizeSubVolume(Envelope.UnpackPart(dat, len, buffer, ref remain,Fragment),Fragment-16);
+                    return OrganizeSubVolume(Envelope.UnpackPart(dat, len, buffer, ref remain, Fragment), Fragment - 16);
                 case PackType.Total:
                     return Envelope.UnpackInt(dat, len, buffer, ref remain);
                 case PackType.All:

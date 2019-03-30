@@ -53,7 +53,6 @@ namespace huqiang
             Page.Refresh(UserAction.TimeSlice);
             AllTime += Time.deltaTime;
             DownloadManager.UpdateMission();
-            Resources.UnloadUnusedAssets();
         }
         static void Resize()
         {
