@@ -11,11 +11,24 @@ namespace huqiang
         public Int32 rcvLen;
         public byte[] buff;
         public long time;
+        public Int32[] checks;
     }
     public class TcpEnvelope
     {
         public static Int16 MinID = 22000;
         public static Int16 MaxID = 32000;
+        static bool SetChecked(Int32[] checks, int part)
+        {
+            int c = part / 32;
+            int r = part % 32;
+            int o = 1 << r;
+            int v = checks[c];
+            if ((v & o) > 0)
+                return false;
+            v |= o;
+            checks[c] = v;
+            return true;
+        }
         public static void CopyToBuff(byte[] buff, byte[] src, int start, EnvelopeHead head, int FragmentSize)
         {
             int index = head.CurPart * FragmentSize;
@@ -79,7 +92,8 @@ namespace huqiang
                 for (int j = 0; j < list.Count; j++)
                 {
                     var item = list[j];
-                    if (item.head.AllPart > 1)
+                    int ap = item.head.AllPart;
+                    if (ap > 1)
                     {
                         int s = -1;
                         for (int i = 0; i < 128; i++)
@@ -91,16 +105,19 @@ namespace huqiang
                             }
                             if (item.head.MsgID == pool[i].head.MsgID)
                             {
-                                CopyToBuff(pool[i].buff, item.data, 0, item.head, fs);
-                                pool[i].part++;
-                                pool[i].rcvLen += item.head.PartLen;
-                                if (pool[i].rcvLen >= item.head.Lenth)
+                                if (SetChecked(pool[i].checks, item.head.CurPart))
                                 {
-                                    EnvelopeData data = new EnvelopeData();
-                                    data.data = pool[i].buff;
-                                    data.type = (byte)(pool[i].head.Type);
-                                    pool[i].head.MsgID = 0;
-                                    datas.Add(data);
+                                    CopyToBuff(pool[i].buff, item.data, 0, item.head, fs);
+                                    pool[i].part++;
+                                    pool[i].rcvLen += item.head.PartLen;
+                                    if (pool[i].rcvLen >= item.head.Lenth)
+                                    {
+                                        EnvelopeData data = new EnvelopeData();
+                                        data.data = pool[i].buff;
+                                        data.type = (byte)(pool[i].head.Type);
+                                        pool[i].head.MsgID = 0;
+                                        datas.Add(data);
+                                    }
                                 }
                                 goto label;
                             }
@@ -111,6 +128,8 @@ namespace huqiang
                         pool[s].buff = new byte[item.head.Lenth];
                         pool[s].time = DateTime.Now.Ticks;
                         CopyToBuff(pool[s].buff, item.data, 0, item.head, fs);
+                        int c = ap / 32 + 1;
+                        pool[s].checks = new Int32[c];
                     }
                     else
                     {
