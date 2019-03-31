@@ -9,9 +9,17 @@ namespace huqiang.Data
 {
     public class LocalFileManager
     {
-        static string persistentDataPath = Application.persistentDataPath;
-        static FileStream CreateFile(string type, string name)
+        public static string persistentDataPath = Application.persistentDataPath;
+        /// <summary>
+        /// 将数据写入具有允许权限的磁盘
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <param name="name">文件名</param>
+        /// <param name="data">数据</param>
+        public static void WriteData(string type,string name,byte[] data)
         {
+            if (type == null | type == "" | name == null | name == "" | data == null)
+                return;
             string path = persistentDataPath + "/data";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -21,10 +29,20 @@ namespace huqiang.Data
             path += "/" + name;
             if (File.Exists(path))
                 File.Delete(path);
-            return File.Create(path);
+            var fs = File.Create(path);
+            fs.Write(data,0,data.Length);
+            fs.Dispose();
         }
-        static FileStream OpenFile(string type, string name)
+        /// <summary>
+        /// 读取文件数据
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static byte[] ReadData(string type,string name)
         {
+            if (type == null | type == "" | name == null | name == "")
+                return null;
             string path = persistentDataPath + "/data";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -32,49 +50,25 @@ namespace huqiang.Data
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
             path += "/" + name;
-            var file = File.Open(path, FileMode.OpenOrCreate);
-            file.Seek(file.Length, SeekOrigin.Begin);
-            return file;
-        }
-        public static void WriteData(string type,string name,byte[] data)
-        {
-            if (type == null | type == "" | name == null | name == "" | data == null)
-                return;
-            var fs= CreateFile(type,name);
-            fs.Write(data,0,data.Length);
-            fs.Dispose();
-        }
-        public static byte[] ReadData(string type,string name)
-        {
-            if (type == null | type == "" | name == null | name == "")
-                return null;
-            var fs = OpenFile(type,name);
-            byte[] buf = null;
-            if(fs.Length>0)
+            if(File.Exists(path))
             {
-                buf = new byte[fs.Length];
-                fs.Read(buf,0,buf.Length);
-            }
-            fs.Dispose();
-            return buf;
-        }
-        public static string GetAssetBundlePath(string name)
-        {
-            string path = persistentDataPath + "\\bundle";
-            if (Directory.Exists(path))
-            {
-                var files = Directory.GetFiles(path);
-                if (files != null)
-                    for (int i = 0; i < files.Length; i++)
-                    {
-                        var ss = files[i].Split('\\');
-                        var str = ss[ss.Length - 1];
-                        if (str.Split('_')[0] == name)
-                            return path;
-                    }
+                var fs = File.Open(path, FileMode.Open);
+                byte[] buf = null;
+                if (fs.Length > 0)
+                {
+                    buf = new byte[fs.Length];
+                    fs.Read(buf, 0, buf.Length);
+                }
+                fs.Dispose();
+                return buf;
             }
             return null;
         }
+        /// <summary>
+        /// 查询assetbundle的完整路径
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static string FindAssetBundle(string name)
         {
             string path = persistentDataPath + "\\bundle";
@@ -92,6 +86,11 @@ namespace huqiang.Data
             }
             return null;
         }
+        /// <summary>
+        /// 读取assetbundle
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static byte[] LoadAssetBundle(string name)
         {
             string fullname= FindAssetBundle(name);
@@ -106,6 +105,10 @@ namespace huqiang.Data
             }
             return null;
         }
+        /// <summary>
+        /// 删除当前的AssetBundle
+        /// </summary>
+        /// <param name="name"></param>
         static void DeleteAssetBundle(string name)
         {
             string path = persistentDataPath + "\\bundle";
@@ -124,6 +127,11 @@ namespace huqiang.Data
                     }
             }
         }
+        /// <summary>
+        /// 查询当前AssetBundle的版本
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static int GetBundleVersion(string name)
         {
             if (name == null | name == "")
@@ -137,6 +145,12 @@ namespace huqiang.Data
                 int.TryParse(ss[1],out v);
             return v;
         }
+        /// <summary>
+        /// 保存一个AssetBundle
+        /// </summary>
+        /// <param name="name">名称</param>
+        /// <param name="version">版本号</param>
+        /// <param name="data">数据</param>
         public static void SaveAssetBundle(string name, int version, byte[] data)
         {
             string path = persistentDataPath + "\\bundle";
@@ -148,6 +162,9 @@ namespace huqiang.Data
             fs.Write(data, 0, data.Length);
             fs.Dispose();
         }
+        /// <summary>
+        /// 删除所有AssetBundle
+        /// </summary>
         public static void ClearAssetBundle()
         {
             string path = persistentDataPath + "\\bundle";
