@@ -24,29 +24,7 @@ namespace huqiang
                 fixed (byte* bp = &anglebuff[0])
                     ap = (float*)bp;
             }
-            fontbuff = Properties.Resources.ARIALUNI;
-            unsafe
-            {
-                fixed (byte* bp = &fontbuff[0])
-                    fp = (int*)bp;
-            }
         }
-        public static unsafe void GetFontInfo(char c,float fontsize,ref FontInfo info)
-        {
-            fontsize *=0.01f;
-            Int32 a = *(fp + c);
-            Int32 t = a;
-            float f = a & 0xffff;
-            f *= 0.01f;
-            info.RenderWidth = f*fontsize;
-            a >>= 16;
-            f = a&0xff;
-            info.Height = f*fontsize;
-            a >>= 8;
-            info.Width = a*fontsize;
-        }
-        static byte[] fontbuff;
-        unsafe static Int32* fp;
         static byte[] anglebuff;
         unsafe static float* ap;
         /// <summary>

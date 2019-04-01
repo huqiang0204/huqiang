@@ -99,7 +99,6 @@
     <Compile Include="Core\Data\AuxiliaryLine.cs" />
     <Compile Include="Core\Data\Box.cs" />
     <Compile Include="Core\Data\DataBuffer.cs" />
-    <Compile Include="Core\Data\DataBufferExtand.cs" />
     <Compile Include="Core\Data\DownloadManager.cs" />
     <Compile Include="Core\Data\FakeStringArray.cs" />
     <Compile Include="Core\Data\FakeStruct.cs" />
@@ -107,7 +106,6 @@
     <Compile Include="Core\Data\LocalFileManager.cs" />
     <Compile Include="Core\Data\MeshData.cs" />
     <Compile Include="Core\Data\RecordManager.cs" />
-    <Compile Include="Core\Data\ScalableData.cs" />
     <Compile Include="Core\Data\StringBuffer.cs" />
     <Compile Include="Core\Event\CheckEvent.cs" />
     <Compile Include="Core\Event\EmojiInput.cs" />
@@ -204,10 +202,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ARIALUNI.info" />
+    <Content Include="link.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="link.xml" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
