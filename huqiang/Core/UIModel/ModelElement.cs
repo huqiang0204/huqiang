@@ -68,7 +68,7 @@ namespace huqiang.UIModel
         }
         public unsafe virtual byte[] ToBytes()
         {
-            int size = ElementAttribute.Size*4;
+            int size = ElementAttribute.Size;
             byte[] buff = new byte[size];
             fixed (byte* bp = &buff[0])
                 *(ElementAttribute*)bp = transAttribute;
@@ -80,19 +80,18 @@ namespace huqiang.UIModel
             var r = tar.transform;
             if (r is RectTransform)
             {
-                var att = model.transAttribute;
                 var t = r as RectTransform;
-                t.pivot = att.pivot;
-                t.anchorMax = att.anchorMax;
-                t.anchorMin = att.anchorMin;
-                t.offsetMax = att.offsetMax;
-                t.offsetMin = att.offsetMin;
-                t.anchoredPosition = att.anchoredPosition;
-                t.anchoredPosition3D = att.anchoredPosition3D;
-                t.localEulerAngles = att.localEulerAngles;
-                t.localScale = att.localScale;
-                t.localPosition = att.localPosition;
-                t.sizeDelta = att.sizeDelta;
+                t.pivot = model.transAttribute.pivot;
+                t.anchorMax = model.transAttribute.anchorMax;
+                t.anchorMin = model.transAttribute.anchorMin;
+                t.offsetMax = model.transAttribute.offsetMax;
+                t.offsetMin = model.transAttribute.offsetMin;
+                t.anchoredPosition = model.transAttribute.anchoredPosition;
+                t.anchoredPosition3D = model.transAttribute.anchoredPosition3D;
+                t.localEulerAngles = model.transAttribute.localEulerAngles;
+                t.localScale = model.transAttribute.localScale;
+                t.localPosition = model.transAttribute.localPosition;
+                t.sizeDelta = model.transAttribute.sizeDelta;
             }
             tar.name = model.name;
             tar.tag = model.tag;
@@ -102,35 +101,34 @@ namespace huqiang.UIModel
             var r = tar.transform;
             if (r is RectTransform)
             {
-                var att = model.transAttribute;
                 var s = r as RectTransform;
-                att.localEulerAngles = s.localEulerAngles;
-                att.localPosition = s.localPosition;
-                att.localScale = s.localScale;
-                att.anchoredPosition = s.anchoredPosition;
-                att.anchoredPosition3D = s.anchoredPosition3D;
-                att.anchorMax = s.anchorMax;
-                att.anchorMin = s.anchorMin;
-                att.offsetMax = s.offsetMax;
-                att.offsetMin = s.offsetMin;
-                att.pivot = s.pivot;
-                att.sizeDelta = s.sizeDelta;
+                model.transAttribute.localEulerAngles = s.localEulerAngles;
+                model.transAttribute.localPosition = s.localPosition;
+                model.transAttribute.localScale = s.localScale;
+                model.transAttribute.anchoredPosition = s.anchoredPosition;
+                model.transAttribute.anchoredPosition3D = s.anchoredPosition3D;
+                model.transAttribute.anchorMax = s.anchorMax;
+                model.transAttribute.anchorMin = s.anchorMin;
+                model.transAttribute.offsetMax = s.offsetMax;
+                model.transAttribute.offsetMin = s.offsetMin;
+                model.transAttribute.pivot = s.pivot;
+                model.transAttribute.sizeDelta = s.sizeDelta;
                 var ss = s.GetComponent<SizeScaling>();
                 if (ss != null)
                 {
-                    att.SizeScale = true;
-                    att.scaleType = ss.scaleType;
-                    att.sizeType = ss.sizeType;
-                    att.anchorType = ss.anchorType;
-                    att.parentType = ss.parentType;
-                    att.margin = ss.margin;
-                    att.DesignSize = ss.DesignSize;
+                    model.transAttribute.SizeScale = true;
+                    model.transAttribute.scaleType = ss.scaleType;
+                    model.transAttribute.sizeType = ss.sizeType;
+                    model.transAttribute.anchorType = ss.anchorType;
+                    model.transAttribute.parentType = ss.parentType;
+                    model.transAttribute.margin = ss.margin;
+                    model.transAttribute.DesignSize = ss.DesignSize;
                 }
-                else att.SizeScale = false;
+                else model.transAttribute.SizeScale = false;
                 model.name = tar.name;
                 model.tag = tar.tag;
-                att.name =model.buffer.AddString(model.name);
-                att.tag = model.buffer.AddString(model.tag);
+                model.transAttribute.name =model.buffer.AddString(model.name);
+                model.transAttribute.tag = model.buffer.AddString(model.tag);
             }
         }
         public List<ModelElement> Child =new List<ModelElement>();
