@@ -72,20 +72,8 @@ namespace huqiang
         /// <param name="ani">动画接口</param>
         public void ReleaseAnimat(AnimatInterface ani)
         {
-            var c = Actions.Count;
-            for (int i = 0; i < c; i++)
-                if (Actions[i] == ani)
-                {
-                    Actions.RemoveAt(i);
-                    break;
-                }
-            c = droc.Count;
-            for (int i = 0; i < c; i++)
-                if (droc[i] == ani)
-                {
-                    droc.RemoveAt(i);
-                    break;
-                }
+            Actions.Remove(ani);
+            droc.Remove(ani);
         }
         /// <summary>
         /// 释放所有动画
@@ -216,6 +204,7 @@ namespace huqiang
         List<AnimatInterface> droc;
         public void DontReleaseOnClear(AnimatInterface animat)
         {
+            if(!droc.Contains(animat))
             droc.Add(animat);
         }
         public T FindAni<T>(Func<T, bool> equl) where T : class, AnimatInterface
