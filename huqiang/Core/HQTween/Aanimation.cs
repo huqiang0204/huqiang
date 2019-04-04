@@ -45,16 +45,15 @@ namespace huqiang
         {
             Frames++;
             float timeslice = Time.deltaTime * 1000;
-            int c = Actions.Count -1;
-            for (; c>=0; c--)
+            var tmp = Actions.ToArray();
+            for (int i=0; i<tmp.Length; i++)
             {
-                if (Actions[c] != null)
-                    Actions[c].Update(timeslice);
-                else Actions.RemoveAt(c);
+                if (tmp[i] != null)
+                    tmp[i].Update(timeslice);
             }
             DoEvent(timeslice);
             DoFrameEvent();
-            LeanTween.update();
+            //LeanTween.update();
         }
         /// <summary>
         /// 添加一个新动画，重复添加会造成多倍运行
