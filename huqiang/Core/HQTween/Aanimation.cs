@@ -72,8 +72,20 @@ namespace huqiang
         /// <param name="ani">动画接口</param>
         public void ReleaseAnimat(AnimatInterface ani)
         {
-            Actions.Remove(ani);
-            droc.Remove(ani);
+            var c = Actions.Count;
+            for (int i = 0; i < c; i++)
+                if (Actions[i] == ani)
+                {
+                    Actions.RemoveAt(i);
+                    break;
+                }
+            c = droc.Count;
+            for (int i = 0; i < c; i++)
+                if (droc[i] == ani)
+                {
+                    droc.RemoveAt(i);
+                    break;
+                }
         }
         /// <summary>
         /// 释放所有动画

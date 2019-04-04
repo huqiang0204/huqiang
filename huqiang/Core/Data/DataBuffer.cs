@@ -90,7 +90,7 @@ namespace huqiang.Data
         /// <param name="obj"></param>
         /// <param name="size">FakeStructArray 成员大小</param>
         /// <returns></returns>
-        internal int AddData(object obj)
+        public int AddData(object obj)
         {
             return AddData(obj, GetType(obj));
         }
