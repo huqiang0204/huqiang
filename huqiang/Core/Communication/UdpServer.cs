@@ -243,7 +243,7 @@ namespace huqiang
                     long a = time - links[i].time;
                     if (a < 0)
                         a = -a;
-                    if (a > 100000000)
+                    if (a > 100000000)//10*1000*10000
                         links.RemoveAt(i);
                 }
             }
