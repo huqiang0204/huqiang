@@ -432,5 +432,19 @@ namespace huqiang.Data
             table.Dispose();
             return tmp;
         }
+        public int AddArray<T>(T[] obj) where T : struct
+        {
+            if(obj is byte[])
+               return AddData(obj,DataType.ByteArray);
+            var dat = obj.ToBytes<T>();
+           return AddData(dat,DataType.ByteArray);
+        }
+        public T[] GetArray<T>(int index) where T : struct
+        {
+            var buf = buff[index].obj as byte[];
+            if(buf!=null)
+               return buf.ToArray<T>();
+            return null;
+        }
     }
 }
