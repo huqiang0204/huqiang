@@ -42,26 +42,34 @@ namespace huqiang
         }
         public override List<EnvelopeData> Unpack(byte[] dat, int len)
         {
-            ClearTimeout();
-            var list = Envelope.UnpackInt(dat, len, buffer, ref remain);
-            var dats = Envelope.EnvlopeDataToPart(list);
-            int c = dats.Count - 1;
-            for (; c >= 0; c--)
+            try
             {
-                var item = dats[c];
-                Int16 tag = item.head.Type;
-                byte type = (byte)(tag);
-                if (type == EnvelopeType.Success)
+                ClearTimeout();
+                var list = Envelope.UnpackInt(dat, len, buffer, ref remain);
+                var dats = Envelope.EnvlopeDataToPart(list);
+                int c = dats.Count - 1;
+                for (; c >= 0; c--)
                 {
-                    Success(item.head.PartID);
-                    dats.RemoveAt(c);
+                    var item = dats[c];
+                    Int16 tag = item.head.Type;
+                    byte type = (byte)(tag);
+                    if (type == EnvelopeType.Success)
+                    {
+                        Success(item.head.PartID);
+                        dats.RemoveAt(c);
+                    }
+                    else
+                    {
+                        ReciveOk(item.head.PartID);
+                    }
                 }
-                else
-                {
-                    ReciveOk(item.head.PartID);
-                }
+                return OrganizeSubVolume(dats, 1401);
             }
-            return OrganizeSubVolume(dats, 1401);
+            catch
+            {
+                remain = 0;
+                return null;
+            }
         }
         public override void Clear()
         {

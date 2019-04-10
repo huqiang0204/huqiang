@@ -55,6 +55,7 @@ namespace huqiang
                 var list = envelope.Unpack(tmp[i], tmp[i].Length);
                 try
                 {
+                    if(list!=null)
                     for (int j = 0; j < list.Count; j++)
                     {
                         var dat = list[j];
