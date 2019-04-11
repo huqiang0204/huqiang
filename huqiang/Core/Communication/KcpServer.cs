@@ -21,12 +21,12 @@ namespace huqiang
         int maxLink;
         int tCount;
         public Int32 allLink;
-        public KcpServer(  int port=0, int remote=0, int threadCount = 8):base(port,remote)
+        public KcpServer(int port = 0, int remote = 0, int threadCount = 8) : base(port, remote)
         {
             Instance = this;
             tCount = threadCount;
             allLink = threadCount * SingleCount;
-            links = new KcpLink[threadCount*SingleCount];
+            links = new KcpLink[threadCount * SingleCount];
             threads = new Thread[threadCount];
             for (int i = 0; i < threadCount; i++)
             {
@@ -97,7 +97,7 @@ namespace huqiang
             soc.Close();
             running = false;
         }
-        
+        public static Func<KcpServer, KcpLink> CreateModle = (k) => { return new KcpLink(k); };
         //设置用户的udp对象用于发送消息
         public KcpLink CreateNewLink(IPEndPoint ep)
         {
@@ -109,7 +109,7 @@ namespace huqiang
                     id = *(Int32*)bp;
             }
             int min = maxLink;
-            for (int i = maxLink; i>=0; i--)
+            for (int i = maxLink; i >= 0; i--)
             {
                 var lin = links[i];
                 if (lin != null)
@@ -124,16 +124,16 @@ namespace huqiang
                     }
                 }
                 else min = i;
-           
+
             }
-            KcpLink link = new KcpLink(this);
+            KcpLink link = CreateModle(this);
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
             link.envelope = new KcpEnvelope();
             link.time = DateTime.Now.Ticks;
             link.Index = min;
-            links[min]=link;
+            links[min] = link;
             return link;
         }
         public override void Dispatch(byte[] dat, IPEndPoint endPoint)
