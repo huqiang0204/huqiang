@@ -12,6 +12,7 @@ namespace huqiang
         public Progress()
         {
             AnimationManage.Manage.AddAnimat(this);
+            AnimationManage.Manage.DontReleaseOnClear(this);
         }
         public void Dispose()
         {

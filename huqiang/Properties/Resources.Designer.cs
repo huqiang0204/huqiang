@@ -61,16 +61,6 @@ namespace huqiang.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] ARIALUNI {
-            get {
-                object obj = ResourceManager.GetObject("ARIALUNI", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Closing.
         /// </summary>
         internal static string Closing {

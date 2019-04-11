@@ -23,13 +23,14 @@ namespace huqiang.Data
         public const short ByteArray = 3;
         public const short Int32Array = 4;
         public const short FloatArray = 5;
-        public const short Int64Array = 6;
-        public const short DoubleArray = 7;
-        public const short FakeStringArray = 8;
-        public const short Int = 9;
-        public const short Float = 10;
-        public const short Long = 11;
-        public const short Double = 12;
+        public const short Int16Array = 6;
+        public const short Int64Array = 7;
+        public const short DoubleArray = 8;
+        public const short FakeStringArray = 9;
+        public const short Int = 10;
+        public const short Float = 11;
+        public const short Long = 12;
+        public const short Double = 13;
     }
     //C#的这些类型不能被继承：System.ValueType, System.Enum, System.Delegate, System.Array, etc.
     public class DataBuffer
@@ -48,6 +49,8 @@ namespace huqiang.Data
                 return DataType.Int32Array;
             else if (obj is Single[])
                 return DataType.FloatArray;
+            else if (obj is Int16[])
+                return DataType.Int16Array;
             else if (obj is Int64[])
                 return DataType.Int64Array;
             else if (obj is Double[])
@@ -63,6 +66,8 @@ namespace huqiang.Data
                 size = 4;
             else if (array is float[])
                 size = 4;
+            else if (array is Int16[])
+                size = 2;
             else if (array is Double[])
                 size = 8;
             else if (array is Int64[])
@@ -90,7 +95,7 @@ namespace huqiang.Data
         /// <param name="obj"></param>
         /// <param name="size">FakeStructArray 成员大小</param>
         /// <returns></returns>
-        internal int AddData(object obj)
+        public int AddData(object obj)
         {
             return AddData(obj, GetType(obj));
         }
@@ -99,16 +104,36 @@ namespace huqiang.Data
             if (obj is string[])
                 return 0;
             int min = max;
-            for (int a = max - 1; a >= 0; a--)
+            if(type==DataType.String)
             {
-                if (obj == buff[a].obj)
+                string str = obj as string;
+                for (int a = max - 1; a >= 0; a--)
                 {
-                    buff[a].rc++;
-                    return a;
+                    var c = buff[a].obj as string;
+                    if (str == c)
+                    {
+                        buff[a].rc++;
+                        return a;
+                    }
+                    if (buff[a].rc == 0)
+                    {
+                        min = a;
+                    }
                 }
-                else if (buff[a].rc == 0)
+            }
+            else
+            {
+                for (int a = max - 1; a >= 0; a--)
                 {
-                    min = a;
+                    if (obj == buff[a].obj)
+                    {
+                        buff[a].rc++;
+                        return a;
+                    }
+                    if (buff[a].rc == 0)
+                    {
+                        min = a;
+                    }
                 }
             }
             buff[min].rc = 1;
@@ -132,6 +157,14 @@ namespace huqiang.Data
         public object GetData(int index)
         {
             return buff[index].obj;
+        }
+        public object this[int index]
+        {
+            get {
+                if (index < 0|index>buff.Length)
+                    return null;
+                    return buff[index].obj;
+            }
         }
         public void RemoveData(int index)
         {
@@ -276,6 +309,17 @@ namespace huqiang.Data
                 { buf[i] = *p; p++; }
                 return buf;
             }
+            else if (type == DataType.Int16Array)
+            {
+                len /= 2;
+                Int16[] buf = new Int16[len];
+                Int16* sp = (Int16*)p;
+                for (int i = 0; i < len; i++)
+                {
+                    buf[i] = *sp; sp++;
+                }
+                return buf;
+            }
             else if (type == DataType.Int64Array)
             {
                 len /= 8;
@@ -337,7 +381,6 @@ namespace huqiang.Data
                         return to.ToBytes();
                     return null;
                 }
-
                 return Encoding.UTF8.GetBytes(str);
             }
         }
@@ -389,6 +432,19 @@ namespace huqiang.Data
             table.Dispose();
             return tmp;
         }
+        public int AddArray<T>(T[] obj) where T : struct
+        {
+            if(obj is byte[])
+               return AddData(obj,DataType.ByteArray);
+            var dat = obj.ToBytes<T>();
+           return AddData(dat,DataType.ByteArray);
+        }
+        public T[] GetArray<T>(int index) where T : struct
+        {
+            var buf = buff[index].obj as byte[];
+            if(buf!=null)
+               return buf.ToArray<T>();
+            return null;
+        }
     }
-
 }

@@ -10,12 +10,8 @@ namespace huqiang
     public class KcpServer:KcpListener
     {
         public static int SingleCount = 2048;
+        public static Func<KcpServer, KcpLink> CreateLink = (o) => { return new KcpLink(o); };
         public static KcpServer Instance;
-        Queue<SocData> queue;
-        bool running;
-        bool auto;
-        Int16 id;
-        Thread server;
         Thread[] threads;
         KcpLink[] links;
         int maxLink;
@@ -66,36 +62,30 @@ namespace huqiang
         void Run(object index)
         {
             int os = (int)index;
-            while (true)
+            while (running)
             {
                 var now = DateTime.Now;
-                int a = now.Millisecond;
+                long a = now.Ticks;
                 int s = os;
                 for (int i = 0; i < SingleCount; i++)
                 {
                     var c = links[s];
                     if (c != null)
                     {
-                        c.Recive(now.Ticks);
+                        c.Recive(a);
                     }
                     s += tCount;
                 }
-                int t = DateTime.Now.Millisecond;
+                long t = DateTime.Now.Ticks;
                 t -= a;
-                if (t < 0)
-                    t += 1000;
-                t = 10 - t;
-                if (t < 0)
-                    t = 10;
-                else if (t > 10)
-                    t = 10;
-                Thread.Sleep(t);
+                t /= 10000;
+                if (t < 10)
+                    Thread.Sleep(10 - (int)t);
             }
         }
         public void Close()
         {
             soc.Close();
-            running = false;
         }
         public static Func<KcpServer, KcpLink> CreateModle = (k) => { return new KcpLink(k); };
         //设置用户的udp对象用于发送消息
@@ -126,14 +116,23 @@ namespace huqiang
                 else min = i;
 
             }
+<<<<<<< HEAD
             KcpLink link = CreateModle(this);
+=======
+            KcpLink link = CreateLink(this);
+>>>>>>> eae2720f80cb855c08c6a052c9530c6fe99eb6a5
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
             link.envelope = new KcpEnvelope();
             link.time = DateTime.Now.Ticks;
             link.Index = min;
+<<<<<<< HEAD
             links[min] = link;
+=======
+            link._connect = true;
+            links[min]=link;
+>>>>>>> eae2720f80cb855c08c6a052c9530c6fe99eb6a5
             return link;
         }
         public override void Dispatch(byte[] dat, IPEndPoint endPoint)
@@ -145,6 +144,11 @@ namespace huqiang
         public void RemoveLink(KcpLink link)
         {
             links[link.Index] = null;
+        }
+        public override void Dispose()
+        {
+            base.Dispose();
+            Instance = null;
         }
     }
 }

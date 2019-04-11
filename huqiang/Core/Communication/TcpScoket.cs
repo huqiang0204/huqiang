@@ -38,48 +38,42 @@ namespace huqiang
         {
             while (true)
             {
-                try
+                if (close)
                 {
-                    if (close)
+                    if (client != null)
                     {
-                        if (client != null)
+                        if (client.Connected)
+                            client.Shutdown(SocketShutdown.Both);
+                        client.Close();
+                    }
+                    break;
+                }
+                if (client != null)
+                {
+                    if (client.Connected)
+                    {
+                        Receive();
+                        if(redic)
                         {
                             if (client.Connected)
                                 client.Shutdown(SocketShutdown.Both);
                             client.Close();
-                        }
-                        break;
-                    }
-                    if (client != null)
-                    {
-                        if (client.Connected)
-                        {
-                            Receive();
-                            if (redic)
-                            {
-                                if (client.Connected)
-                                    client.Shutdown(SocketShutdown.Both);
-                                client.Close();
-                                Connect();
-                            }
-                        }
-                        if (reConnect)
-                        {
-                            try
-                            {
-                                client.Close();
-                            }
-                            catch (Exception ex)
-                            {
-                            }
                             Connect();
                         }
                     }
-                    else Connect();
-                }catch(Exception ex)
-                {
-                    
+                    if (reConnect)
+                    {
+                        try
+                        {
+                            client.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                        Connect();
+                    }
                 }
+                else Connect();
             }
             thread = null;
             client = null;
@@ -88,21 +82,28 @@ namespace huqiang
         {
             try
             {
+                if (Packaging)
+                    envelope.Clear();
                 redic = false;
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                if(localBind!=null)
+                {
+                    client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                    client.Bind(localBind);
+                }
                 client.ReceiveTimeout = 2000;
                 client.SendTimeout = 100;
                 client.Connect(iep);
                 reConnect = false;
                 if (client.Connected)
                 {
-                    envelope.Clear();
                     if (Connected != null)
                         Connected();
                 }
             }
             catch (Exception ex)
             {
+                reConnect = true;
                 client.Close();
                 if (ConnectFaild != null)
                     ConnectFaild(ex.StackTrace);
@@ -145,8 +146,8 @@ namespace huqiang
             }
             catch (Exception ex)
             {
-                if (Packaging)
-                    envelope.Clear();
+                //if (ConnectFaild != null)
+                //    ConnectFaild(ex.StackTrace);
             }
         }
         void EnvelopeCallback(byte[] data,byte tag)
@@ -183,7 +184,7 @@ namespace huqiang
             }
         }
         bool auto = true;
-        Action<byte[], byte,object> a_Dispatch;
+        Action<byte[], byte ,object> a_Dispatch;
         /// <summary>
         /// 设置消息派发函数
         /// </summary>
@@ -194,15 +195,23 @@ namespace huqiang
         {
             a_Dispatch = DispatchMessage;
             auto = autodispatch;
+            //if (!auto)
+            //{
+            //    if (buff_size < 16)
+            //        buff_size = 16;
+            //    //drm = new DataReaderManage(buff_size);
+            //}
         }
-        public void ConnectServer(IPAddress ip, int _port)
+        IPEndPoint localBind;
+        public void ConnectServer(IPEndPoint remote, IPEndPoint bind = null)
         {
             if (thread != null)
             {
                 return;
             }
+            localBind = bind;
             close = false;
-            iep = new IPEndPoint(ip, _port);
+            iep = remote;
             if (thread == null)
             {
                 thread = new Thread(Run);

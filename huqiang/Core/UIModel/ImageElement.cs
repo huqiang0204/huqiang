@@ -21,14 +21,15 @@ namespace huqiang.UIModel
         public Int32 assetName;
         public Int32 textureName;
         public Int32 spriteName;
-        public static int Size = 64;//sizeof(ImageAttribute);
+        public static int Size = sizeof(ImageAttribute);
+        public static int ElementSize = Size / 4;
         public static void LoadFromBuff(ref ImageAttribute img, void* p)
         {
             fixed (float* trans = &img.alphaHit)
             {
                 Int32* a =(Int32*) trans;
                 Int32* b = (Int32*)p;
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < ElementSize; i++)
                 {
                     *a = *b;
                     a++;
@@ -50,25 +51,13 @@ namespace huqiang.UIModel
         string smat;
         public unsafe override byte* LoadFromBuff(byte* point)
         {
-            //transAttribute = *(ElementAttribute*)point;
-            ElementAttribute.LoadFromBuff(ref transAttribute,point);
-            name = StringAssets[transAttribute.name];
-            tag = StringAssets[transAttribute.tag];
-            point += ElementAttribute.Size;
-            //imageAttribute = *(ImageAttribute*)point;
+            point = base.LoadFromBuff(point);
             ImageAttribute.LoadFromBuff(ref imageAttribute,point);
-            if (imageAttribute.material > -1)
-            {
-                smat = StringAssets[imageAttribute.material];
-                shader = StringAssets[imageAttribute.shader];
-            }
-            if (imageAttribute.spriteName > -1)
-            {
-                if (imageAttribute.assetName > -1)
-                   assetName = StringAssets[imageAttribute.assetName];
-                textureName = StringAssets[imageAttribute.textureName];
-                spriteName = StringAssets[imageAttribute.spriteName];
-            }
+            smat = buffer[imageAttribute.material] ;
+            shader = buffer[imageAttribute.shader] ;
+            assetName = buffer[imageAttribute.assetName] ;
+            textureName = buffer[imageAttribute.textureName] ;
+            spriteName = buffer[imageAttribute.spriteName] ;
             return point + ImageAttribute.Size;
         }
         public unsafe override byte[] ToBytes()
@@ -84,8 +73,9 @@ namespace huqiang.UIModel
             }
             return buff;
         }
-        static void Load(GameObject tar, ref ImageAttribute att)
+        static void Load(GameObject tar, ImageElement image)
         {
+            var att = image.imageAttribute;
             var a = tar.GetComponent<Image>();
             a.alphaHitTestMinimumThreshold = att.alphaHit;
             a.fillAmount = att.fillAmount;
@@ -97,52 +87,51 @@ namespace huqiang.UIModel
             a.type = att.type;
             a.raycastTarget = false;
             a.color = att.color;
+            if (image.smat != null)
+                if (image.smat != "Default UI Material")
+                     a.material = new Material(Shader.Find(image.shader));
+            if (image.spriteName != null)
+                a.sprite = ElementAsset.FindSprite(image.assetName, image.textureName, image.spriteName);
         }
-        static void Save(GameObject tar, ref ImageAttribute att)
+        static void Save(GameObject tar,ImageElement image)
         {
             var b = tar.GetComponent<Image>();
             if (b != null)
             {
-                att.alphaHit = b.alphaHitTestMinimumThreshold;
-                att.fillAmount = b.fillAmount;
-                att.fillCenter = b.fillCenter;
-                att.fillClockwise = b.fillClockwise;
-                att.fillMethod = b.fillMethod;
-                att.fillOrigin = b.fillOrigin;
-                att.preserveAspect = b.preserveAspect;
+                image.imageAttribute.alphaHit = b.alphaHitTestMinimumThreshold;
+                image.imageAttribute.fillAmount = b.fillAmount;
+                image.imageAttribute.fillCenter = b.fillCenter;
+                image.imageAttribute.fillClockwise = b.fillClockwise;
+                image.imageAttribute.fillMethod = b.fillMethod;
+                image.imageAttribute.fillOrigin = b.fillOrigin;
+                image.imageAttribute.preserveAspect = b.preserveAspect;
                 if (b.sprite != null)
                 {
-                    att.spriteName = SaveString(b.sprite.name);
+                    image.imageAttribute.spriteName = image.buffer.AddString(b.sprite.name);
                     string tn = b.sprite.texture.name;
-                    att.textureName = SaveString(tn);
+                    image.imageAttribute.textureName = image.buffer.AddString(tn);
                     var an = ElementAsset.TxtureFormAsset(tn);
                     if (an != null)
-                        att.assetName = SaveString(an);
-                    else att.assetName = -1;
+                        image.imageAttribute.assetName = image.buffer.AddString(an);
+                    else image.imageAttribute.assetName = -1;
                 }
-                else att.spriteName = -1;
-                att.type = b.type;
+                else image.imageAttribute.spriteName = -1;
+                image.imageAttribute.type = b.type;
                 var mat = b.material;
-                att.material = SaveString(mat.name);
-                att.shader = SaveString(mat.shader.name);
-                att.color = b.color;
+                image.imageAttribute.material = image.buffer.AddString(mat.name);
+                image.imageAttribute.shader = image.buffer.AddString(mat.shader.name);
+                image.imageAttribute.color = b.color;
             }
         }
         public override void Load(GameObject tar)
         {
             base.Load(tar);
-            Load(tar, ref this.imageAttribute);
-            var img = tar.GetComponent<Image>();
-            if (smat != null)
-                if (smat != "Default UI Material")
-                    img.material = new Material(Shader.Find(shader));
-            if(spriteName!=null)
-                img.sprite = ElementAsset.FindSprite(assetName, textureName, spriteName);
+            Load(tar, this);
         }
         public override void Save(GameObject tar)
         {
             base.Save(tar);
-            Save(tar, ref this.imageAttribute);
+            Save(tar, this);
         }
         public void SetSprite(Sprite sprite)
         {

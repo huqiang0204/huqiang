@@ -72,10 +72,12 @@ public class EditorModelManager
             if (objs != null)
             {
                 if(objs.Length>0)
-                if (objs[0].name == tname)
+                    if (objs[0] !=null)
+                        if (objs[0].name == tname)
                 {
                     for (int j = 1; j < objs.Length; j++)
                     {
+                                if(objs[j]!=null)
                         if (objs[j].name == name)
                             return objs[j] as Sprite;
                     }
@@ -89,6 +91,7 @@ public class EditorModelManager
             {
                 for (int j = 1; j < os.Length; j++)
                 {
+                    if(os[j]!=null)
                     if (os[j].name == name)
                         return os[j] as Sprite;
                 }

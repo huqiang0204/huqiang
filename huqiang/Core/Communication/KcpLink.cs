@@ -7,7 +7,11 @@ namespace huqiang
 {
     public class KcpLink
     {
+<<<<<<< HEAD
         KcpServer kcp;
+=======
+        protected KcpServer kcp;
+>>>>>>> eae2720f80cb855c08c6a052c9530c6fe99eb6a5
         public int Index;
         public KcpLink(KcpServer listener)
         {
@@ -24,8 +28,10 @@ namespace huqiang
         /// <summary>
         /// 5秒
         /// </summary>
-        public static long TimeOut = 500000000;
-        long lastTime;
+        public static long TimeOut = 50000000;
+        protected long lastTime;
+        internal bool _connect;
+        public bool Connected { get { return _connect; } }
         public void Recive(long time)
         {
             int c = metaData.Count;
@@ -39,13 +45,21 @@ namespace huqiang
                 {
                     envelope.Clear();
                     Disconnect();
+                    _connect = false;
                 }
-            } else lastTime = time;
+            }
+            else {
+                lastTime = time;
+                if (!_connect)
+                    ConnectionOK();
+                _connect = true;
+            }
             for (int i = 0; i < c; i++)
             {
                 var list = envelope.Unpack(tmp[i], tmp[i].Length);
                 try
                 {
+                    if(list!=null)
                     for (int j = 0; j < list.Count; j++)
                     {
                         var dat = list[j];
@@ -74,9 +88,11 @@ namespace huqiang
         public virtual void Disconnect()
         {
         }
+        public virtual void ConnectionOK()
+        {
+        }
         public virtual void Dispatch(byte[] dat, byte tag)
         {
-            
         }
         public virtual void Dispose()
         {

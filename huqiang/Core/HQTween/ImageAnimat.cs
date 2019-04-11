@@ -13,6 +13,8 @@ namespace huqiang
             AnimationManage.Manage.AddAnimat(this);
         }
         Sprite[] sprites;
+        int curFrame;
+        int feIndex;
         public void Play(Sprite[] gif)
         {
             PlayTime = 0;
@@ -22,14 +24,26 @@ namespace huqiang
                 image.sprite = sprites[0];
                 image.SetNativeSize();
                 _playing = true;
+                curFrame = 0;
+                feIndex = 0;
             }
         }
         Sprite[][] spritesBuff;
         int curIndex=0;
+        public int[] conds;
+        public int[][] allConds;
         public void SetSprites(Sprite[][] sprites)
         {
             spritesBuff = sprites;
             curIndex = -1;
+        }
+        public void SetFrameEvent(int[] conditions)
+        {
+            conds = conditions;
+        }
+        public void SetFrameEvent(int[][] conditions)
+        {
+            allConds = conditions;
         }
         public void Play(int index,bool cover=true)
         {
@@ -40,8 +54,14 @@ namespace huqiang
                     return;
             if(index>-1&index<spritesBuff.Length)
             {
-                curIndex = index;
-                Play(spritesBuff[index]);
+                if(index<spritesBuff.Length)
+                {
+                    curIndex = index;
+                    Play(spritesBuff[index]);
+                }
+                if (allConds != null)
+                    if (index < allConds.Length)
+                        conds = allConds[index];
             }
         }
         public void Pause()
@@ -62,6 +82,7 @@ namespace huqiang
         }
         public Action<ImageAnimat> PlayOver;
         public Action<ImageAnimat> Playing;
+        public Action<ImageAnimat,int> FrameEvent;
         public bool Loop;
         bool _playing;
         public bool IsPlaying { get { return _playing; } }
@@ -77,25 +98,37 @@ namespace huqiang
                 if (sprites != null)
                 {
                     int c = (int)(PlayTime / Interval);
-                    if (c >= sprites.Length)
+                    if (c != curFrame)
                     {
-                        if (Loop)
+                        curFrame = c;
+                        if (c >= sprites.Length)
                         {
-                            PlayTime = 0;
-                            image.sprite = sprites[0];
-                            image.SetNativeSize();
+                            if (Loop)
+                            {
+                                PlayTime = 0;
+                                image.sprite = sprites[0];
+                                image.SetNativeSize();
+                            }
+                            else
+                            {
+                                _playing = false;
+                                if (PlayOver != null)
+                                    PlayOver(this);
+                            }
                         }
                         else
                         {
-                            _playing = false;
-                            if (PlayOver != null)
-                                PlayOver(this);
+                            image.sprite = sprites[c];
+                            image.SetNativeSize();
                         }
-                    }
-                    else
-                    {
-                        image.sprite = sprites[c];
-                        image.SetNativeSize();
+                        if (FrameEvent != null)
+                            if (conds != null)
+                                if (feIndex < conds.Length)
+                                    if (conds[feIndex] == curFrame)
+                                    {
+                                        FrameEvent(this, feIndex);
+                                        feIndex++;
+                                    }
                     }
                 }
                 if (Playing != null)

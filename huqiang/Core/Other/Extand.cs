@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -227,6 +228,65 @@ namespace huqiang
         {
             var q = Quaternion.LookRotation(v);
             return q * Quaternion.Euler(v2);
+        }
+        /// <summary>
+        /// 将结构体数组转换成byte[],结构体中字段不能有引用类型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public unsafe static byte[] ToBytes<T>(this T[] obj) where T : struct
+        {
+            int size = Marshal.SizeOf(typeof(T));
+            int len = obj.Length;
+            int all = size * len;
+            byte[] buf = new byte[all];
+            var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(obj, 0);
+            var sp = (byte*)ptr;
+            unsafe
+            {
+                fixed (byte* bp = &buf[0])
+                {
+                    var tp = bp;
+                    for (int i = 0; i < all; i++)
+                    {
+                        *tp = *sp;
+                        sp++;
+                        tp++;
+                    }
+                }
+            }
+            return buf;
+        }
+        /// <summary>
+        /// 将byte[]转换成结构体数组
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public unsafe static T[] ToArray<T>(this byte[] obj) where T : struct
+        {
+            int size = Marshal.SizeOf(typeof(T));
+            int all = obj.Length;
+            int len = all/size;
+            all = len * size;
+            T[] buf = new T[len];
+            var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(buf, 0);
+            var tp = (byte*)ptr;
+            unsafe
+            {
+                fixed (byte* bp = &obj[0])
+                {
+                    var sp = bp;
+                    for (int i = 0; i < all; i++)
+                    {
+                        *tp = *sp;
+                        sp++;
+                        tp++;
+                    }
+                }
+            }
+            return buf;
         }
     }
 }

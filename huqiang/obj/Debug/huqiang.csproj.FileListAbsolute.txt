@@ -1,0 +1,16 @@
+F:\CthulhuClient\huqiang.dll
+F:\CthulhuClient\huqiang.pdb
+F:\CthulhuClient\huqiang.XML
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.csprojAssemblyReference.cache
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.Properties.Resources.resources
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.csproj.GenerateResource.cache
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.csproj.CoreCompileInputs.cache
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.csproj.CopyComplete
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.dll
+F:\tmp\huqiang\huqiang\obj\Debug\huqiang.pdb
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.Properties.Resources.resources
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.csproj.GenerateResource.cache
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.csproj.CoreCompileInputs.cache
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.dll
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.pdb
+F:\SelfWork\huqiang\huqiang\obj\Debug\huqiang.csproj.CopyComplete

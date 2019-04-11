@@ -1,4 +1,5 @@
-﻿using System;
+﻿using huqiang.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,14 +34,15 @@ namespace huqiang.UIModel
         public Margin margin;
         public Vector2 DesignSize;
         public Int32 type;
-        public static int Size = 164;//sizeof(ElementAttribute);
+        public static int Size = sizeof(ElementAttribute);
+        public static int ElementSize = Size / 4;
         public static void LoadFromBuff(ref ElementAttribute ele, void* p)
         {
             fixed (Int32* trans = &ele.childCount)
             {
                 Int32* a = trans;
                 Int32* b = (Int32*)p;
-                for (int i = 0; i < 41; i++)
+                for (int i = 0; i <ElementSize; i++)
                 {
                     *a = *b;
                     a++;
@@ -51,66 +53,17 @@ namespace huqiang.UIModel
     }
     public class ModelElement
     {
-        public static List<string> StringBuffer;
-        public static byte[] GetStringAsset()
-        {
-            if (StringBuffer == null)
-                return null;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                for (int i = 0; i < StringBuffer.Count; i++)
-                {
-                    var str = StringBuffer[i];
-                    var buff = Encoding.UTF8.GetBytes(str);
-                    var lb = buff.Length.ToBytes();
-                    ms.Write(lb, 0, 4);
-                    ms.Write(buff, 0, buff.Length);
-                }
-                return ms.ToArray();
-            }
-        }
-        public unsafe static byte* LoadStringAsset(byte[] dat ,byte* bp)
-        {
-            byte* p = bp;
-            int len = *(int*)p;
-            StringAssets = new string[len];
-            p += 4;
-            for(int i=0;i<len;i++)
-            {
-                int c = *(int*)p;
-                p += 4;
-                int offset = (int)((byte*)p - bp);
-                StringAssets[i] = Encoding.UTF8.GetString(dat,offset,c);
-                p += c;
-            }
-            return p;
-        }
-        public static int SaveString(string str)
-        {
-            if (StringBuffer == null)
-                StringBuffer = new List<string>();
-            if (str == null)
-                return 0;
-            int index = StringBuffer.IndexOf(str);
-            if (index < 0)
-            {
-                index = StringBuffer.Count;
-                StringBuffer.Add(str);
-            }
-            return index;
-        }
-        public static string[] StringAssets;
         public string name;
         public string tag;
-        public static List<AssetBundle> bundles;
+        public StringBuffer buffer;
         public ElementAttribute transAttribute;
 
         public unsafe virtual byte* LoadFromBuff(byte* point)
         {
-            //transAttribute = *(ElementAttribute*)point;
+            transAttribute = *(ElementAttribute*)point;
             ElementAttribute.LoadFromBuff(ref transAttribute,point);
-            name = StringAssets[transAttribute.name];
-            tag = StringAssets[transAttribute.tag];
+            name = buffer[transAttribute.name];
+            tag = buffer[transAttribute.tag];
             return point + ElementAttribute.Size;
         }
         public unsafe virtual byte[] ToBytes()
@@ -122,69 +75,72 @@ namespace huqiang.UIModel
             return buff;
         }
 
-        public static void Load(GameObject tar, ref ElementAttribute att)
+        public static void Load(GameObject tar, ModelElement  model)
         {
             var r = tar.transform;
             if (r is RectTransform)
             {
                 var t = r as RectTransform;
-                t.pivot = att.pivot;
-                t.anchorMax = att.anchorMax;
-                t.anchorMin = att.anchorMin;
-                t.offsetMax = att.offsetMax;
-                t.offsetMin = att.offsetMin;
-                t.anchoredPosition = att.anchoredPosition;
-                t.anchoredPosition3D = att.anchoredPosition3D;
-                t.localEulerAngles = att.localEulerAngles;
-                t.localScale = att.localScale;
-                t.localPosition = att.localPosition;
-                t.sizeDelta = att.sizeDelta;
+                t.pivot = model.transAttribute.pivot;
+                t.anchorMax = model.transAttribute.anchorMax;
+                t.anchorMin = model.transAttribute.anchorMin;
+                t.offsetMax = model.transAttribute.offsetMax;
+                t.offsetMin = model.transAttribute.offsetMin;
+                t.anchoredPosition = model.transAttribute.anchoredPosition;
+                t.anchoredPosition3D = model.transAttribute.anchoredPosition3D;
+                t.localEulerAngles = model.transAttribute.localEulerAngles;
+                t.localScale = model.transAttribute.localScale;
+                t.localPosition = model.transAttribute.localPosition;
+                t.sizeDelta = model.transAttribute.sizeDelta;
             }
+            tar.name = model.name;
+            tar.tag = model.tag;
         }
-        public static void Save(GameObject tar, ref ElementAttribute att)
+        public static void Save(GameObject tar, ModelElement model)
         {
             var r = tar.transform;
             if (r is RectTransform)
             {
                 var s = r as RectTransform;
-                att.localEulerAngles = s.localEulerAngles;
-                att.localPosition = s.localPosition;
-                att.localScale = s.localScale;
-                att.anchoredPosition = s.anchoredPosition;
-                att.anchoredPosition3D = s.anchoredPosition3D;
-                att.anchorMax = s.anchorMax;
-                att.anchorMin = s.anchorMin;
-                att.offsetMax = s.offsetMax;
-                att.offsetMin = s.offsetMin;
-                att.pivot = s.pivot;
-                att.sizeDelta = s.sizeDelta;
+                model.transAttribute.localEulerAngles = s.localEulerAngles;
+                model.transAttribute.localPosition = s.localPosition;
+                model.transAttribute.localScale = s.localScale;
+                model.transAttribute.anchoredPosition = s.anchoredPosition;
+                model.transAttribute.anchoredPosition3D = s.anchoredPosition3D;
+                model.transAttribute.anchorMax = s.anchorMax;
+                model.transAttribute.anchorMin = s.anchorMin;
+                model.transAttribute.offsetMax = s.offsetMax;
+                model.transAttribute.offsetMin = s.offsetMin;
+                model.transAttribute.pivot = s.pivot;
+                model.transAttribute.sizeDelta = s.sizeDelta;
                 var ss = s.GetComponent<SizeScaling>();
                 if (ss != null)
                 {
-                    att.SizeScale = true;
-                    att.scaleType = ss.scaleType;
-                    att.sizeType = ss.sizeType;
-                    att.anchorType = ss.anchorType;
-                    att.parentType = ss.parentType;
-                    att.margin = ss.margin;
-                    att.DesignSize = ss.DesignSize;
+                    model.transAttribute.SizeScale = true;
+                    model.transAttribute.scaleType = ss.scaleType;
+                    model.transAttribute.sizeType = ss.sizeType;
+                    model.transAttribute.anchorType = ss.anchorType;
+                    model.transAttribute.parentType = ss.parentType;
+                    model.transAttribute.margin = ss.margin;
+                    model.transAttribute.DesignSize = ss.DesignSize;
                 }
-                else att.SizeScale = false;
+                else model.transAttribute.SizeScale = false;
+                model.name = tar.name;
+                model.tag = tar.tag;
+                model.transAttribute.name =model.buffer.AddString(model.name);
+                model.transAttribute.tag = model.buffer.AddString(model.tag);
             }
-            att.name = SaveString(tar.name);
-            att.tag = SaveString(tar.tag);
         }
         public List<ModelElement> Child =new List<ModelElement>();
         public GameObject Main;
         public virtual void Load(GameObject tar)
         {
-            Load(tar, ref this.transAttribute);
-            tar.name = name;
+            Load(tar, this);
             Main = tar;
         }
         public virtual void Save(GameObject tar)
         {
-            Save(tar, ref transAttribute);
+            Save(tar, this);
         }
 
         public void AddSizeScale()

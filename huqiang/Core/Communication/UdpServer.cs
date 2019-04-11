@@ -13,7 +13,7 @@ namespace huqiang
         public Int32 port;
         public string uniId;
         public IPEndPoint endpPoint;
-        public EnvelopeBuffer envelope;
+        public UdpEnvelope envelope;
         public long time;
     }
     public class UdpServer
@@ -26,6 +26,9 @@ namespace huqiang
         bool running;
         bool auto;
         PackType packType = PackType.All;
+        Int16 id = 10000;
+        static Int16 MinID = 11000;
+        static Int16 MaxID = 21000;
         /// <summary>
         /// UdpServer构造
         /// </summary>
@@ -54,18 +57,24 @@ namespace huqiang
             switch (packType)
             {
                 case PackType.Part:
-                    var all = EnvelopeEx.SubVolume(dat, tag);
+                    var all = Envelope.SubVolume(dat, tag, id, 1472);
                     for (int i = 0; i < all.Length; i++)
                         soc.Send(all[i], all[i].Length, ip);
+                    id += (Int16)all.Length;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 case PackType.Total:
-                    dat = EnvelopeEx.Packing(dat, tag);
+                    dat = Envelope.PackingInt(dat, tag);
                     soc.Send(dat, dat.Length, ip);
                     break;
                 case PackType.All:
-                    all = EnvelopeEx.PackBig(dat, tag);
+                    all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
                     for (int i = 0; i < all.Length; i++)
                         soc.Send(all[i], all[i].Length, ip);
+                    id += (Int16)all.Length;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 default:
                     soc.Send(dat, dat.Length, ip);
@@ -77,13 +86,21 @@ namespace huqiang
             switch (packType)
             {
                 case PackType.Part:
-                    SendAll(EnvelopeEx.SubVolume(dat, tag));
+                    var all = Envelope.SubVolume(dat, tag, id, 1472);
+                    SendAll(all);
+                    id++;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 case PackType.Total:
-                    SendAll(EnvelopeEx.Packing(dat, tag));
+                    SendAll(Envelope.PackingInt(dat, tag));
                     break;
                 case PackType.All:
-                    SendAll(EnvelopeEx.PackBig(dat, tag));
+                    all = Envelope.PackAll(dat, tag, id, 1472);//1472-25
+                    SendAll(all);
+                    id++;
+                    if (id > MaxID)
+                        id = MinID;
                     break;
                 default:
                     SendAll(dat);
@@ -127,7 +144,7 @@ namespace huqiang
                         for (int i = 0; i < data.Count; i++)
                         {
                             var item = data[i];
-                            EnvelopeCallback(item.data, item.tag, env);
+                            EnvelopeCallback(item.data, item.type, env);
                         }
                     }
                     else
@@ -206,7 +223,7 @@ namespace huqiang
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
-            link.envelope = new EnvelopeBuffer();
+            link.envelope = new UdpEnvelope();
             link.envelope.type = packType;
             link.time = DateTime.Now.Ticks;
             links.Add(link);
@@ -226,7 +243,7 @@ namespace huqiang
                     long a = time - links[i].time;
                     if (a < 0)
                         a = -a;
-                    if (a > 10000000)
+                    if (a > 100000000)//10*1000*10000
                         links.RemoveAt(i);
                 }
             }

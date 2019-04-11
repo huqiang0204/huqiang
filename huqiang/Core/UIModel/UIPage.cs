@@ -65,6 +65,7 @@ public class UIBase
             buff[point].Index = Index;
         buff[Index] = buff[point];
         buff[point] = null;
+        Resources.UnloadUnusedAssets();
     }
     public virtual void Save()
     {

@@ -228,5 +228,30 @@ namespace huqiang.Data
             Marshal.Copy(ptr, tmp, 0, msize);
             return tmp;
         }
+        /// <summary>
+        /// 进行元素扩展
+        /// </summary>
+        /// <param name="size"></param>
+        public unsafe void Extend(int size)
+        {
+            int s = msize;
+            element += size;
+            msize = s + size * 4;
+            var tp = Marshal.AllocHGlobal(msize);
+            unsafe
+            {
+                ip = (byte*)ptr;
+                Int32* p = (Int32*)ptr;
+                Int32* t = (Int32*)tp;
+                for (int i = 0; i < s; i++)
+                {
+                    *t = *p;
+                    p++;
+                    t++;
+                }
+            }
+            Marshal.FreeHGlobal(ptr);
+            ptr = tp;
+        }
     }
 }
