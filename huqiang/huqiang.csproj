@@ -107,6 +107,7 @@
     <Compile Include="Core\Data\MeshData.cs" />
     <Compile Include="Core\Data\RecordManager.cs" />
     <Compile Include="Core\Data\StringBuffer.cs" />
+    <Compile Include="Core\Data\SwapBuffer.cs" />
     <Compile Include="Core\Event\CheckEvent.cs" />
     <Compile Include="Core\Event\EmojiInput.cs" />
     <Compile Include="Core\Event\EventCallBack.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Core\UIModel\ScrollY.cs" />
     <Compile Include="Core\UIModel\SizeScaling.cs" />
     <Compile Include="Core\UIModel\TextElement.cs" />
+    <Compile Include="Core\UIModel\TreeView.cs" />
     <Compile Include="Core\UIModel\UIContainer.cs" />
     <Compile Include="Core\UIModel\UIPage.cs" />
     <Compile Include="Core\UIScript\CustomRawImage.cs" />

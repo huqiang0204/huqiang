@@ -67,8 +67,9 @@ public class ElementEditor : Editor
         {
             dc = Application.dataPath + "/AssetsBundle/";
         }
-        ModelManager.SavePrefab(gameObject, dc + Assetname);
-        Debug.Log("create done");
+        dc += Assetname;
+        ModelManager.SavePrefab(gameObject, dc);
+        Debug.Log("create done path:"+dc);
     }
     static void Clone(string CloneName, byte[] ui, Transform root)
     {

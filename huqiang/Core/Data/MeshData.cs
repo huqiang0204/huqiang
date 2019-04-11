@@ -476,6 +476,7 @@ namespace huqiang.Data
                     me = mf.sharedMesh;
                 }
                 mesh.vertex = me.vertices;
+                mesh.normals = me.normals;
                 mesh.subMeshCount = me.subMeshCount;
                 if (mesh.subMeshCount > 1)
                 {

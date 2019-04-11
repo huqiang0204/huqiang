@@ -146,7 +146,6 @@ namespace huqiang.UIModel
                     if (ScrollEnd != null)
                         ScrollEnd(this);
                 }
-                Debug.Log("end");
             }
             else if (ScrollEnd != null)
                 ScrollEnd(this);
