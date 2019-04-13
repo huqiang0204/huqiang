@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace huqiang
 {
-    public struct FontInfo
-    {
-        public float Width;
-        public float Height;
-        public float RenderWidth;
-    }
     public  class MathH
     {
         #region angle table  用于二维旋转，-sin(angle) cos(angle)

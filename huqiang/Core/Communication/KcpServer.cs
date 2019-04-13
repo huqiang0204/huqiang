@@ -116,23 +116,15 @@ namespace huqiang
                 else min = i;
 
             }
-<<<<<<< HEAD
             KcpLink link = CreateModle(this);
-=======
-            KcpLink link = CreateLink(this);
->>>>>>> eae2720f80cb855c08c6a052c9530c6fe99eb6a5
             link.ip = id;
             link.port = ep.Port;
             link.endpPoint = ep;
             link.envelope = new KcpEnvelope();
             link.time = DateTime.Now.Ticks;
             link.Index = min;
-<<<<<<< HEAD
-            links[min] = link;
-=======
             link._connect = true;
             links[min]=link;
->>>>>>> eae2720f80cb855c08c6a052c9530c6fe99eb6a5
             return link;
         }
         public override void Dispatch(byte[] dat, IPEndPoint endPoint)
