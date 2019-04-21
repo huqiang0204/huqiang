@@ -34,21 +34,27 @@ namespace huqiang.UIModel
         /// <summary>
         /// 滚动的当前位置，从0开始
         /// </summary>
-        public float Point { get { return m_point; } set { Refresh(value - m_point); } }
+        public float Point { get { return m_point; } set { Refresh(0,value - m_point); } }
         float m_pos = 0;
         /// <summary>
         /// 0-1之间
         /// </summary>
         public float Pos
         {
-            get { return m_pos; }
+            get {
+                float a = m_point / (ActualSize.y - Size.y);
+                if (a < 0)
+                    a = 0;
+                else if (a > 1)
+                    a = 1;
+                return a;
+            }
             set
             {
                 if (value < 0 | value > 1)
                     return;
-                float a = value * (ActualSize.y - Size.y);
-                a -= m_point;
-                Refresh(0, a);
+                m_point = value * (ActualSize.y - Size.y);
+                Order();
             }
         }
         //public float OffsetStart;

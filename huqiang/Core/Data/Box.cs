@@ -73,32 +73,6 @@ namespace huqiang.Data
             box.center.z = (zi + zx) * 0.5f;
             return box;
         }
-        static List<Vector3> vectors = new List<Vector3>();
-        /// <summary>
-        /// 推荐使用GetMeshCenter
-        /// </summary>
-        /// <param name="mesh"></param>
-        /// <returns></returns>
-        public static Box MeshGetCenter(MeshData mesh)
-        {
-            vectors.Clear();
-            return GetMeshGetCenter(mesh);
-        }
-
-        static Box GetMeshGetCenter(MeshData mesh)
-        {
-            if (mesh.vertex != null)
-                vectors.AddRange(mesh.vertex);
-
-            if (mesh.child == null)
-                return GetCenter(vectors.ToArray());
-            for (int i = 0; i < mesh.child.Length; i++)
-            {
-                GetMeshGetCenter(mesh.child[i]);
-            }
-            return GetCenter(vectors.ToArray());
-        }
-
         public static void ReLocation(Vector3[] vert, ref Vector3 location)
         {
             var box = GetCenter(vert);
@@ -108,66 +82,85 @@ namespace huqiang.Data
             location = box.center;
         }
 
-        [ThreadStatic]
-        static float txi;
-        [ThreadStatic]
-        static float tyi;
-        [ThreadStatic]
-        static float tzi;
-        [ThreadStatic]
-        static float txx;
-        [ThreadStatic]
-        static float tyx;
-        [ThreadStatic]
-        static float tzx;
-        /// <summary>
-        /// 推荐使用
-        /// </summary>
-        /// <param name="mesh"></param>
-        /// <returns></returns>
+        struct Result
+        {
+            public float minX;
+            public float minY;
+            public float minZ;
+            public float maxX;
+            public float maxY;
+            public float maxZ;
+            public bool Frist;
+        }
         public static Box GetMeshCenter(MeshData mesh)
         {
-            txi = 0;
-            txx = 0;
-            tyi = 0;
-            tyx = 0;
-            tzi = 0;
-            tzx = 0;
-            GetMeshCenterS(mesh);
+            Result r = new Result();
+            GetMeshCenterS(mesh, Vector3.zero, Vector3.zero, Quaternion.identity, ref r);
             Box box = new Box();
-            box.size.x = txx - txi;
-            box.size.y = tyx - tyi;
-            box.size.z = tzx - tzi;
-            box.center.x = (txi + txx) * 0.5f;
-            box.center.y = (tyi + tyx) * 0.5f;
-            box.center.z = (tzi + tzx) * 0.5f;
+            box.size.x = r.maxX - r.minX;
+            box.size.y = r.maxY - r.minY;
+            box.size.z = r.maxZ - r.minZ;
+            box.center.x = (r.minX + r.maxX) * 0.5f;
+            box.center.y = (r.minY + r.maxY) * 0.5f;
+            box.center.z = (r.minZ + r.maxZ) * 0.5f;
             return box;
         }
-        static void GetMeshCenterS(MeshData mesh)
+        static void GetMeshCenterS(MeshData mesh, Vector3 pos, Vector3 scale, Quaternion q, ref Result r)
         {
             var vert = mesh.vertex;
+            var a = q * mesh.coordinate.pos;
+            var tops = a + pos;
+            q *= mesh.coordinate.quat;
+            var ls = mesh.coordinate.scale;
+            scale.x *= ls.x;
+            scale.y *= ls.y;
+            scale.z *= ls.z;
             if (vert != null)
+            {
+                if (!r.Frist)
+                {
+                    var v = q * vert[0];
+                    v.x *= scale.x;
+                    v.y *= scale.y;
+                    v.z *= scale.z;
+                    var x = tops.x + v.x;
+                    r.minX = x;
+                    r.maxX = x;
+                    var y = tops.y + v.y;
+                    r.minY = y;
+                    r.maxY = y;
+                    var z = tops.z + v.z;
+                    r.minZ = z;
+                    r.maxZ = z;
+                    r.Frist = true;
+                }
                 for (int i = 0; i < vert.Length; i++)
                 {
-                    if (vert[i].x < txi)
-                        txi = vert[i].x;
-                    else if (vert[i].x > txx)
-                        txx = vert[i].x;
-                    if (vert[i].y < tyi)
-                        tyi = vert[i].y;
-                    else if (vert[i].y > tyx)
-                        tyx = vert[i].y;
-                    if (vert[i].z < tzi)
-                        tzi = vert[i].z;
-                    else if (vert[i].z > tzx)
-                        tzx = vert[i].z;
+                    var v = q * vert[i];
+                    v.x *= ls.x;
+                    v.y *= ls.y;
+                    v.z *= ls.z;
+                    var x = tops.x + v.x;
+                    if (x < r.minX)
+                        r.minX = x;
+                    else if (x > r.maxX)
+                        r.maxX = x;
+                    var y = tops.y + v.y;
+                    if (y < r.minY)
+                        r.minY = y;
+                    else if (y > r.maxY)
+                        r.maxY = y;
+                    var z = tops.z + v.z;
+                    if (z < r.minZ)
+                        r.minZ = z;
+                    else if (z > r.maxZ)
+                        r.maxZ = z;
                 }
+            }
             var child = mesh.child;
             if (child != null)
                 for (int i = 0; i < child.Length; i++)
-                {
-                    GetMeshCenterS(child[i]);
-                }
+                    GetMeshCenterS(child[i], tops, scale, q, ref r);
         }
     }
 }

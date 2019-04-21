@@ -10,7 +10,7 @@ namespace huqiang
     }
     public class Model
     {
-        public struct ConeData
+        public struct MeshData
         {
             public Vector3[] Vertex;
             public int[] Tri;
@@ -22,7 +22,7 @@ namespace huqiang
         /// <param name="h">高度</param>
         /// <param name="arc">三角形弧度，越小精度越高，范围0-360取整</param>
         /// <returns>顶点，三角形</returns>
-        public static ConeData CreateCone(float r, float h, float arc)
+        public static MeshData CreateCone(float r, float h, float arc)
         {
             int a = (int)arc;
             int c = 360 / a;
@@ -50,7 +50,7 @@ namespace huqiang
             vertex[c + 1].y = h;
             tri[i * 3] = 0;
             tri[o * 3 + 2] = 0;
-            ConeData cd = new ConeData();
+            MeshData cd = new MeshData();
             cd.Vertex = vertex;
             cd.Tri = tri;
             return cd;
@@ -121,7 +121,14 @@ namespace huqiang
                 0,3,4,3,7,4,
                 1,0,4,4,5,1,
                 3,2,7,7,2,6};
-        public static ConeData CreateCube(Vector3 size)
+        static int[] CubeInnertri = new int[] {
+                0,2,1,2,0,3,
+                1,2,5,2,6,5,
+                5,6,4,6,7,4,
+                0,4,3,3,4,7,
+                1,4,0,4,1,5,
+                3,7,2,7,6,2};
+        static Vector3[] CreateCubeVertex(ref Vector3 size)
         {
             float rx = size.x * 0.5f;
             float ry = size.y * 0.5f;
@@ -137,10 +144,20 @@ namespace huqiang
             vert[5] = new Vector3(-rx, ry, rz);
             vert[6] = new Vector3(rx, ry, rz);
             vert[7] = new Vector3(rx, -ry, rz);
-
-            ConeData cd = new ConeData();
-            cd.Vertex = vert;
+            return vert;
+        }
+        public static MeshData CreateCube(Vector3 size)
+        {
+            MeshData cd = new MeshData();
+            cd.Vertex = CreateCubeVertex(ref size);
             cd.Tri = Cubetri;
+            return cd;
+        }
+        public static MeshData CreateInnersCube(Vector3 size)
+        {
+            MeshData cd = new MeshData();
+            cd.Vertex = CreateCubeVertex(ref size);
+            cd.Tri = CubeInnertri;
             return cd;
         }
     }
