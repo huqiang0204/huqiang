@@ -14,7 +14,7 @@ namespace huqiang.Data
             CreateLine(ref start, ref end, lineWidth, tmp, 0);
             return tmp;
         }
-        static void CreateLine(ref Vector3 start, ref Vector3 end, float lineWidth, Vector3[] vert, int index = 0)
+        public static void CreateLine(ref Vector3 start, ref Vector3 end, float lineWidth, Vector3[] vert, int index = 0)
         {
 
             float vx = end.x - start.x;
@@ -93,5 +93,6 @@ namespace huqiang.Data
 
             return tmp;
         }
+
     }
 }

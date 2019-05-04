@@ -128,7 +128,7 @@ namespace huqiang
                 0,4,3,3,4,7,
                 1,4,0,4,1,5,
                 3,7,2,7,6,2};
-        static Vector3[] CreateCubeVertex(ref Vector3 size)
+        public static Vector3[] CreateCubeVertex(ref Vector3 size)
         {
             float rx = size.x * 0.5f;
             float ry = size.y * 0.5f;
