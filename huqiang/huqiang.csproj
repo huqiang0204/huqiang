@@ -105,6 +105,7 @@
     <Compile Include="Core\Data\FakeStructArray.cs" />
     <Compile Include="Core\Data\LocalFileManager.cs" />
     <Compile Include="Core\Data\MeshData.cs" />
+    <Compile Include="Core\Data\QueueBuffer.cs" />
     <Compile Include="Core\Data\RecordManager.cs" />
     <Compile Include="Core\Data\StringBuffer.cs" />
     <Compile Include="Core\Data\SwapBuffer.cs" />
